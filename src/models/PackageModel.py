@@ -18,7 +18,16 @@ class InputImage(Input):
 
     class Config:
         title = "Image"
+class InputImageA(Input):
+    name: Literal["inputImageA"] = "inputImageA"
+    value: Union[List[Image], Image]
+    type: str = "object"
 
+
+class InputImageB(Input):
+    name: Literal["inputImageB"] = "inputImageB"
+    value: Union[List[Image], Image]
+    type: str = "object"
 
 class OutputImage(Output):
     name: Literal["outputImage"] = "outputImage"
@@ -35,6 +44,18 @@ class OutputImage(Output):
 
     class Config:
         title = "Image"
+
+class OutputImageA(Output):
+    name: Literal["outputImageA"] = "outputImageA"
+    value: Union[List[Image], Image]
+    type: str = "object"
+
+
+class OutputImageB(Output):
+    name: Literal["outputImageB"] = "outputImageB"
+    value: Union[List[Image], Image]
+    type: str = "object"
+
 
 
 class ConfigOffSet(Config):
@@ -217,8 +238,35 @@ class ConfigGaussian(Config):
 
     class Config:
         title = "Gaussian"
+        
+class ConfigDualBlur(Config):
+    name: Literal["DualBlur"] = "DualBlur"
+    value: Literal["DualBlur"] = "DualBlur"
+    blurSize: ConfigSubBlock
+    type: Literal["string"] = "string"
+    field: Literal["option"] = "option"
 
 
+class ConfigDualThreshold(Config):
+    name: Literal["DualThreshold"] = "DualThreshold"
+    value: Literal["DualThreshold"] = "DualThreshold"
+    thresholdVal: ConfigThresholdVal
+    maxVal: ConfigMaxVal
+    type: Literal["string"] = "string"
+    field: Literal["option"] = "option"
+
+class ConfigDualType(Config):
+    name: Literal["configDualType"] = "configDualType"
+    value: Union[ConfigDualBlur, ConfigDualThreshold]
+    type: Literal["object"] = "object"
+    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
+
+    class Config:
+        title = "Dual Method"
+        json_schema_extra = {
+            "shortDescription": "Select dual image processing method"
+        }
+        
 class ConfigLocalType(Config):
     """
     Selects the algorithm for calculating the dynamic threshold.
@@ -295,6 +343,34 @@ class ConfigType(Config):
             "shortDescription": "Segmentation Strategy"
         }
 
+class DualThresholdingInputs(Inputs):
+    inputImageA: InputImageA
+    inputImageB: InputImageB
+
+
+class DualThresholdingOutputs(Outputs):
+    outputImageA: OutputImageA
+    outputImageB: OutputImageB
+
+
+class DualThresholdingConfigs(Configs):
+    configDualType: ConfigDualType
+
+
+class DualThresholdingRequest(Request):
+    inputs: DualThresholdingInputs
+    configs: DualThresholdingConfigs
+
+
+class DualThresholdingResponse(Response):
+    outputs: DualThresholdingOutputs
+
+
+class DualThresholdingExecutor(Config):
+    name: Literal["DualThresholding"] = "DualThresholding"
+    value: Union[DualThresholdingRequest, DualThresholdingResponse]
+    type: Literal["object"] = "object"
+    field: Literal["option"] = "option"
 
 class ThresholdingInputs(Inputs):
     inputImage: InputImage
@@ -339,7 +415,7 @@ class ThresholdingExecutor(Config):
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
-    value: Union[ThresholdingExecutor]
+    value: Union[ThresholdingExecutor, DualThresholdingExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
     class Config:
