@@ -1,5 +1,5 @@
 from sdks.novavision.src.helper.package import PackageHelper
-from components.Thresholding.src.models.PackageModel import (
+from components.DemoThresholding.src.models.PackageModel import (
     PackageModel,
     PackageConfigs,
     ConfigExecutor,

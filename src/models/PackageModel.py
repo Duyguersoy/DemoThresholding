@@ -266,7 +266,7 @@ class ConfigDualType(Config):
         json_schema_extra = {
             "shortDescription": "Select dual image processing method"
         }
-        
+
 class ConfigLocalType(Config):
     """
     Selects the algorithm for calculating the dynamic threshold.
@@ -432,4 +432,4 @@ class PackageConfigs(Configs):
 class PackageModel(Package):
     configs: PackageConfigs
     type: Literal["component"] = "component"
-    name : Literal["Thresholding"] = "Thresholding"
+    name: Literal["DemoThresholding"] = "DemoThresholding"
