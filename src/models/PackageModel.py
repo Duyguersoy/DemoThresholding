@@ -358,8 +358,13 @@ class DualThresholdingConfigs(Configs):
 
 
 class DualThresholdingRequest(Request):
-    inputs: DualThresholdingInputs
+    inputs: Optional[DualThresholdingInputs]
     configs: DualThresholdingConfigs
+
+    class Config:
+        json_schema_extra = {
+            "target": "configs"
+        }
 
 
 class DualThresholdingResponse(Response):
@@ -415,25 +420,15 @@ class ThresholdingExecutor(Config):
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
-    value: Union[ThresholdingExecutor, DualThresholdingExecutor] = ThresholdingExecutor(
-        value=ThresholdingRequest(
-            inputs=None,
-            configs=ThresholdingConfigs(
-                configType=ConfigType(
-                    value=ConfigTypeGlobalThresholding(
-                        configEdit=ConfigGlobalType(
-                            value=ConfigTypeBlackWhite(
-                                thresholdVal=ConfigThresholdVal(),
-                                maxVal=ConfigMaxVal()
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    )
+    value: Union[ThresholdingExecutor, DualThresholdingExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
+
+    class Config:
+        title = "Task"
+        json_schema_extra = {
+            "target": "value"
+        }
 
     class Config:
         title = "Task"
