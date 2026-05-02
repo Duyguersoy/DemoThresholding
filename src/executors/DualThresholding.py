@@ -3,11 +3,12 @@ import cv2
 import sys
 import numpy as np
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../'))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../../../"))
 
 from sdks.novavision.src.media.image import Image
 from sdks.novavision.src.base.component import Component
 from sdks.novavision.src.helper.executor import Executor
+
 from components.DemoThresholding.src.utils.response import build_dual_response
 from components.DemoThresholding.src.models.PackageModel import PackageModel
 
@@ -16,12 +17,10 @@ class DualThresholding(Component):
     def __init__(self, request, bootstrap):
         super().__init__(request, bootstrap)
 
-        self.request.model = PackageModel(**(self.request.data))
+        self.request.model = PackageModel(**self.request.data)
 
-        # CONFIG
         self.type = self.request.get_param("configDualType")
 
-        # INPUTS
         self.image_a = self.request.get_param("inputImageA")
         self.image_b = self.request.get_param("inputImageB")
 
@@ -29,11 +28,11 @@ class DualThresholding(Component):
 
     def load_parameters(self):
         if self.type == "DualBlur":
-            self.blur_size = self.request.get_param("subblock")
+            self.blur_size = int(self.request.get_param("subblock"))
 
         elif self.type == "DualThreshold":
-            self.threshold_value = self.request.get_param("thresholdvalue")
-            self.max_value = self.request.get_param("maxvalue")
+            self.threshold_value = int(self.request.get_param("thresholdvalue"))
+            self.max_value = int(self.request.get_param("maxvalue"))
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
@@ -45,6 +44,9 @@ class DualThresholding(Component):
         if self.type == "DualBlur":
             k = int(self.blur_size)
 
+            if k < 3:
+                k = 3
+
             if k % 2 == 0:
                 k += 1
 
@@ -54,14 +56,14 @@ class DualThresholding(Component):
             if len(image.shape) == 3:
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-            _, th = cv2.threshold(
+            _, th_image = cv2.threshold(
                 image,
                 self.threshold_value,
                 self.max_value,
                 cv2.THRESH_BINARY
             )
 
-            return th
+            return th_image
 
         return image
 
@@ -88,5 +90,5 @@ class DualThresholding(Component):
         return packageModel
 
 
-if "__main__" == __name__:
+if __name__ == "__main__":
     Executor(sys.argv[1]).run()
