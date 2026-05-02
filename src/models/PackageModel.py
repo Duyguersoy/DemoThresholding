@@ -414,15 +414,14 @@ class ThresholdingExecutor(Config):
 
 
 class ConfigExecutor(Config):
-    name: Literal["ConfigExecutor"] = "ConfigExecutor"
-    value: Union[ThresholdingExecutor, DualThresholdingExecutor]
-    type: Literal["executor"] = "executor"
-    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-    class Config:
-        title = "Task"
-        json_schema_extra = {
-            "target": "value"
-        }
+    name: Literal["executor"] = "executor"
+    value: Union[ThresholdingExecutor, DualThresholdingExecutor] = ThresholdingExecutor(
+        value=ThresholdingResponse(
+            outputs=ThresholdingOutputs(
+                outputImage=OutputImage()
+            )
+        )
+    )
 
 
 class PackageConfigs(Configs):
