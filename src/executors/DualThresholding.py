@@ -9,7 +9,7 @@ from sdks.novavision.src.media.image import Image
 from sdks.novavision.src.base.component import Component
 from sdks.novavision.src.helper.executor import Executor
 
-from components.DemoThresholding.src.utils.response import build_dual_response
+from components.DemoThresholding.src.utils.response import build_response, build_dual_response
 from components.DemoThresholding.src.models.PackageModel import PackageModel
 
 
@@ -86,8 +86,8 @@ class DualThresholding(Component):
             redis_db=self.redis_db
         )
 
-        packageModel = build_dual_response(context=self)
-        return packageModel
+        # packageModel = build_dual_response(context=self)
+        return build_response(context=self) 
 
 
 if __name__ == "__main__":
