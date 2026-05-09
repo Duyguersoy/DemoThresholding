@@ -275,19 +275,6 @@ class ConfigGaussian(Config):
         title = "Gaussian"
 
 
-class ConfigDualType(Config):
-    name: Literal["configDualType"] = "configDualType"
-    value: Union["ConfigTypeGlobalThresholding", "ConfigTypeLocalThresholding"]
-    type: Literal["object"] = "object"
-    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-
-    class Config:
-        title = "Method"
-        json_schema_extra = {
-            "shortDescription": "Segmentation Strategy"
-        }
-
-
 class ConfigLocalType(Config):
     name: Literal["configLocalType"] = "configLocalType"
     value: Union[ConfigMean, ConfigGaussian]
@@ -345,6 +332,19 @@ class ConfigTypeGlobalThresholding(Config):
 
 class ConfigType(Config):
     name: Literal["configType"] = "configType"
+    value: Union[ConfigTypeGlobalThresholding, ConfigTypeLocalThresholding]
+    type: Literal["object"] = "object"
+    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
+
+    class Config:
+        title = "Method"
+        json_schema_extra = {
+            "shortDescription": "Segmentation Strategy"
+        }
+
+
+class ConfigDualType(Config):
+    name: Literal["configDualType"] = "configDualType"
     value: Union[ConfigTypeGlobalThresholding, ConfigTypeLocalThresholding]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
