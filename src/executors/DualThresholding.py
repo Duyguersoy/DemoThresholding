@@ -196,16 +196,15 @@ class DualThresholding(Component):
         img_a = Image.get_frame(img=self.image_a, redis_db=self.redis_db)
         img_b = Image.get_frame(img=self.image_b, redis_db=self.redis_db)
 
-        img_a.value = self.thresholding(img_a.value)
-        img_b.value = self.thresholding(img_b.value)
+        img_a.value, img_b.value = self.thresholding(img_a.value, img_b.value)
 
-        self.image_a = Image.set_frame(
+        self.output_a = Image.set_frame(
             img=img_a,
             package_uID=self.uID,
             redis_db=self.redis_db
         )
 
-        self.image_b = Image.set_frame(
+        self.output_b = Image.set_frame(
             img=img_b,
             package_uID=self.uID,
             redis_db=self.redis_db

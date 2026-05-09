@@ -275,39 +275,16 @@ class ConfigGaussian(Config):
         title = "Gaussian"
 
 
-class ConfigDualBlur(Config):
-    name: Literal["DualBlur"] = "DualBlur"
-    value: Literal["DualBlur"] = "DualBlur"
-    blurSize: ConfigSubBlock
-    type: Literal["string"] = "string"
-    field: Literal["option"] = "option"
-
-    class Config:
-        title = "Dual Blur"
-
-
-class ConfigDualThreshold(Config):
-    name: Literal["DualThreshold"] = "DualThreshold"
-    value: Literal["DualThreshold"] = "DualThreshold"
-    thresholdVal: ConfigThresholdVal
-    maxVal: ConfigMaxVal
-    type: Literal["string"] = "string"
-    field: Literal["option"] = "option"
-
-    class Config:
-        title = "Dual Threshold"
-
-
 class ConfigDualType(Config):
     name: Literal["configDualType"] = "configDualType"
-    value: Union[ConfigDualBlur, ConfigDualThreshold]
+    value: Union["ConfigTypeGlobalThresholding", "ConfigTypeLocalThresholding"]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
     class Config:
-        title = "Dual Method"
+        title = "Method"
         json_schema_extra = {
-            "shortDescription": "Select dual image processing method"
+            "shortDescription": "Segmentation Strategy"
         }
 
 
