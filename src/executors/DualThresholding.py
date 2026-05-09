@@ -19,7 +19,7 @@ class DualThresholding(Component):
 
         self.request.model = PackageModel(**self.request.data)
 
-        self.type = self.request.get_param("configDualType")
+        self.type = self.request.get_param("configType")
         self.image_a = self.request.get_param("inputImageA")
         self.image_b = self.request.get_param("inputImageB")
 

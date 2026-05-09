@@ -343,19 +343,6 @@ class ConfigType(Config):
         }
 
 
-class ConfigDualType(Config):
-    name: Literal["configDualType"] = "configDualType"
-    value: Union[ConfigTypeGlobalThresholding, ConfigTypeLocalThresholding]
-    type: Literal["object"] = "object"
-    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-
-    class Config:
-        title = "Method"
-        json_schema_extra = {
-            "shortDescription": "Segmentation Strategy"
-        }
-
-
 class ThresholdingInputs(Inputs):
     inputImage: InputImage
 
@@ -388,7 +375,7 @@ class DualThresholdingInputs(Inputs):
 
 
 class DualThresholdingConfigs(Configs):
-    configDualType: ConfigDualType
+    configType: ConfigType
 
 
 class DualThresholdingOutputs(Outputs):
