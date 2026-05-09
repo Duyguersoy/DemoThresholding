@@ -3,13 +3,12 @@ from sdks.novavision.src.helper.package import PackageHelper
 from components.DemoThresholding.src.models.PackageModel import (
     PackageModel,
     PackageConfigs,
-    ConfigExecutor,
-
+    ConfigExecutorThresholding,
+    ConfigExecutorDual,
     ThresholdingExecutor,
     ThresholdingResponse,
     ThresholdingOutputs,
     OutputImage,
-
     DualThresholdingExecutor,
     DualThresholdingResponse,
     DualThresholdingOutputs,
@@ -33,7 +32,7 @@ def build_response(context):
         value=response
     )
 
-    executor = ConfigExecutor(
+    executor = ConfigExecutorThresholding(
         value=thresholding_executor
     )
 
@@ -67,7 +66,7 @@ def build_dual_response(context):
         value=response
     )
 
-    executor = ConfigExecutor(
+    executor = ConfigExecutorDual(
         value=dual_thresholding_executor
     )
 

@@ -7,7 +7,7 @@ import json
 
 sys.path.append(os.path.join(os.path.dirname(__file__),'../../../'))
 
-from components.Thresholding.src.models.PackageModel import PackageModel, PackageConfigs, ConfigExecutor, \
+from components.Thresholding.src.models.PackageModel import PackageModel, PackageConfigs, ConfigExecutorThresholding, \
     ThresholdingExecutor, ThresholdingRequest, ThresholdingConfigs, ThresholdingInputs, ConfigType, \
     ConfigTypeGlobalThresholding, ConfigGlobalType, ConfigTypeBlackWhite, ConfigThresholdVal, ConfigMaxVal, InputImage, \
     ConfigTypeLocalThresholding, ConfigLocalType, ConfigMean, ConfigSubBlock, ConfigOffSet, ConfigTypeBlackWhiteInv, \
@@ -53,7 +53,7 @@ def infer():
     thresholdingConfigs = ThresholdingConfigs(configType=configType)
     thresholdingRequest = ThresholdingRequest(inputs=thresholdingInputs, configs=thresholdingConfigs)
     thresholdingExecutor = ThresholdingExecutor(value=thresholdingRequest)
-    executor = ConfigExecutor(value=thresholdingExecutor)
+    executor = ConfigExecutorThresholding(value=thresholdingExecutor)
     packageConfigs = PackageConfigs(executor=executor)
     request = PackageModel(configs=packageConfigs, name="Thresholding")
     request_json = json.loads(request.json())

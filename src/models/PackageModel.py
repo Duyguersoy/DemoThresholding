@@ -422,23 +422,39 @@ class DualThresholdingExecutor(Config):
         title = "Dual Thresholding"
         json_schema_extra = {
             "target": {
-                "value": 1
+                "value": 0
             }
         }
 
 
-class ConfigExecutor(Config):
+class ConfigExecutorThresholding(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
-    value: Union[ThresholdingExecutor, DualThresholdingExecutor]
+    value: Union[ThresholdingExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
     class Config:
         title = "Task"
+        json_schema_extra = {
+            "target": "value"
+        }
+
+
+class ConfigExecutorDual(Config):
+    name: Literal["ConfigExecutorDual"] = "ConfigExecutorDual"
+    value: Union[DualThresholdingExecutor]
+    type: Literal["executor"] = "executor"
+    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
+
+    class Config:
+        title = "Task"
+        json_schema_extra = {
+            "target": "value"
+        }
 
 
 class PackageConfigs(Configs):
-    executor: ConfigExecutor
+    executor: Union[ConfigExecutorThresholding, ConfigExecutorDual]
 
 
 class PackageModel(Package):
