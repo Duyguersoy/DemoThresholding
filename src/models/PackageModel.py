@@ -369,7 +369,7 @@ class ThresholdingOutputs(Outputs):
 
 class ThresholdingRequest(Request):
     inputs: Union[ThresholdingInputs, None] = None
-    configs: ThresholdingConfigs = ThresholdingConfigs()
+    configs: ThresholdingConfigs
 
     class Config:
         schema_extra = {
