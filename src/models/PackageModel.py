@@ -429,7 +429,7 @@ class DemoSecondResponse(Response):
 
 class DemoSecondExecutor(Config):
     name: Literal["DemoSecondExecutor"] = "DemoSecondExecutor"
-    value: Union[DemoSecondRequest, DemoSecondResponse] = DemoSecondRequest()
+    value: Union[DemoSecondRequest, DemoSecondResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
 
