@@ -13,7 +13,7 @@ from sdks.novavision.src.base.model import (
 class InputImage(Input):
     name: Literal["inputImage"] = "inputImage"
     value: Union[List[Image], Image]
-    type: str = "object"
+    type: Literal["capsule"] = "capsule "
     field: Literal["input"] = "input"
 
     @validator("type", pre=True, always=True)
@@ -389,10 +389,10 @@ class ThresholdingRequest(Request):
 
 
 class ThresholdingResponse(Response):
-    outputs: ThresholdingOutputs
+    outputs: ThresholdingOutputs    
 
 
-class ThresholdingExecutor(Config):
+class ThresholdingExecutor(Config): 
     name: Literal["ThresholdingExecutor"] = "ThresholdingExecutor"
     value: Union[ThresholdingRequest, ThresholdingResponse] = ThresholdingRequest()
     type: Literal["object"] = "object"
@@ -469,22 +469,26 @@ class DemoSecondExecutor(Config):
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
-    value: Union[ThresholdingExecutor, DemoSecondExecutor] = ThresholdingExecutor()
+    value: Union[ThresholdingExecutor, DemoSecondExecutor] 
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
     class Config:
         title = "Task"
+        schema_extra = {
+            "target":"value"
+        }
 
 
 class PackageConfigs(Configs):
-    executor: ConfigExecutor = ConfigExecutor()
+    executor1: ConfigExecutor
+    configType: ConfigType
     value: Literal["Configs"] = "Configs"
     type: Literal["object"] = "object"
     field: Literal["config"] = "config"
 
 
 class PackageModel(Package):
-    configs: PackageConfigs = PackageConfigs()
+    configs: PackageConfigs
     type: Literal["component"] = "component"
     name: Literal["DemoThresholding"] = "DemoThresholding"
