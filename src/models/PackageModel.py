@@ -355,11 +355,11 @@ class ConfigDualType(Config):
 # ============================================================
 # EXECUTOR 1: 1 INPUT, 1 OUTPUT
 # ============================================================
-
 class ThresholdingInputs(Inputs):
     inputImage: InputImage
 
 
+#1 validation error for ThresholdingConfigs configType Field required [type=missing, input_value={}, input_type=dict] For further information visit https://errors.pydantic.dev/2.10/v/missing
 class ThresholdingConfigs(Configs):
     configType: ConfigType
 
@@ -368,7 +368,7 @@ class ThresholdingOutputs(Outputs):
 
 class ThresholdingRequest(Request):
     inputs: Union[ThresholdingInputs, None] = None
-    configs: ThresholdingConfigs = ThresholdingConfigs()
+    configs: ThresholdingConfigs
 
     class Config:
         schema_extra = {
