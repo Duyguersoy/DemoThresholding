@@ -13,15 +13,15 @@ from sdks.novavision.src.base.model import (
 class InputImage(Input):
     name: Literal["inputImage"] = "inputImage"
     value: Union[List[Image], Image]
-    type: Literal["capsule"] = "capsule "
-    field: Literal["input"] = "input"
-
+    type:str = "object"
+   
     @validator("type", pre=True, always=True)
     def set_type_based_on_value(cls, value, values):
-        image_value = values.get("value")
-        if isinstance(image_value, list):
+        value = values.get('value')
+        if isinstance(value, Image):
+            return "object"
+        elif isinstance(value, list):
             return "list"
-        return "object"
 
     class Config:
         title = "Image"
@@ -48,15 +48,15 @@ class OutputImage(Output):
     name: Literal["outputImage"] = "outputImage"
     value: Union[List[Image], Image]
     type: str = "object"
-    field: Literal["output"] = "output"
 
     @validator("type", pre=True, always=True)
     def set_type_based_on_value(cls, value, values):
-        image_value = values.get("value")
-        if isinstance(image_value, list):
+        value = values.get('value')
+        if isinstance(value, Image):
+            return "object"
+        elif isinstance(value, list):
             return "list"
-        return "object"
-
+    
     class Config:
         title = "Image"
 
@@ -65,8 +65,7 @@ class OutputImageSecond(Output):
     name: Literal["outputImageSecond"] = "outputImageSecond"
     value: Union[List[Image], Image]
     type: str = "object"
-    field: Literal["output"] = "output"
-
+    ü
     @validator("type", pre=True, always=True)
     def set_type_based_on_value(cls, value, values):
         image_value = values.get("value")
@@ -359,24 +358,13 @@ class ConfigDualType(Config):
 
 class ThresholdingInputs(Inputs):
     inputImage: InputImage
-    value: Literal["Inputs"] = "Inputs"
-    type: Literal["object"] = "object"
-    field: Literal["input"] = "input"
 
 
 class ThresholdingConfigs(Configs):
-    configType: ConfigType = ConfigType()
-    value: Literal["Configs"] = "Configs"
-    type: Literal["object"] = "object"
-    field: Literal["config"] = "config"
-
+    configType: ConfigType
 
 class ThresholdingOutputs(Outputs):
     outputImage: OutputImage
-    value: Literal["Outputs"] = "Outputs"
-    type: Literal["object"] = "object"
-    field: Literal["output"] = "output"
-
 
 class ThresholdingRequest(Request):
     inputs: Union[ThresholdingInputs, None] = None
@@ -394,7 +382,7 @@ class ThresholdingResponse(Response):
 
 class ThresholdingExecutor(Config): 
     name: Literal["ThresholdingExecutor"] = "ThresholdingExecutor"
-    value: Union[ThresholdingRequest, ThresholdingResponse] = ThresholdingRequest()
+    value: Union[ThresholdingRequest, ThresholdingResponse] 
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
 
@@ -414,33 +402,23 @@ class ThresholdingExecutor(Config):
 class DemoSecondInputs(Inputs):
     inputImage: InputImage
     inputImageSecond: InputImageSecond
-    value: Literal["Inputs"] = "Inputs"
-    type: Literal["object"] = "object"
-    field: Literal["input"] = "input"
 
 
 class DemoSecondConfigs(Configs):
-    configDualType: ConfigDualType = ConfigDualType()
-    value: Literal["Configs"] = "Configs"
-    type: Literal["object"] = "object"
-    field: Literal["config"] = "config"
-
+    configDualType: ConfigDualType = ConfigDualType()   
 
 class DemoSecondOutputs(Outputs):
     outputImage: OutputImage
     outputImageSecond: OutputImageSecond
-    value: Literal["Outputs"] = "Outputs"
-    type: Literal["object"] = "object"
-    field: Literal["output"] = "output"
 
 
 class DemoSecondRequest(Request):
-    inputs: Union[DemoSecondInputs, None] = None
-    configs: DemoSecondConfigs = DemoSecondConfigs()
+    inputs: DemoSecondInputs
+    configs: DemoSecondConfigs
 
     class Config:
         schema_extra = {
-            "target": "configs"
+            "target": "configs" 
         }
 
 
@@ -458,7 +436,7 @@ class DemoSecondExecutor(Config):
         title = "Demo Second Executor"
         schema_extra = {
             "target": {
-                "value": 1
+                "value": 0
             }
         }
 
@@ -475,18 +453,9 @@ class ConfigExecutor(Config):
 
     class Config:
         title = "Task"
-        schema_extra = {
-            "target":"value"
-        }
-
 
 class PackageConfigs(Configs):
-    executor1: ConfigExecutor
-    configType: ConfigType
-    value: Literal["Configs"] = "Configs"
-    type: Literal["object"] = "object"
-    field: Literal["config"] = "config"
-
+    executor: ConfigExecutor
 
 class PackageModel(Package):
     configs: PackageConfigs
