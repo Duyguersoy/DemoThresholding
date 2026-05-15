@@ -361,7 +361,7 @@ class ThresholdingInputs(Inputs):
 
 
 class ThresholdingConfigs(Configs):
-    configType: ConfigType
+    configType: ConfigType = ConfigType()
 
 class ThresholdingOutputs(Outputs):
     outputImage: OutputImage
