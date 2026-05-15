@@ -65,7 +65,7 @@ class OutputImageSecond(Output):
     name: Literal["outputImageSecond"] = "outputImageSecond"
     value: Union[List[Image], Image]
     type: str = "object"
-    ü
+    
     
     @validator("type", pre=True, always=True)
     def set_type_based_on_value(cls, value, values):
