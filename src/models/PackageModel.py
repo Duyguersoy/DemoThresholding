@@ -406,7 +406,7 @@ class DemoSecondInputs(Inputs):
 
 
 class DemoSecondConfigs(Configs):
-    configDualType: ConfigDualType = ConfigDualType()   
+    configDualType: ConfigDualType    
 
 class DemoSecondOutputs(Outputs):
     outputImage: OutputImage
