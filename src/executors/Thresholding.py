@@ -9,7 +9,7 @@ from sdks.novavision.src.media.image import Image
 from sdks.novavision.src.base.component import Component
 from sdks.novavision.src.helper.executor import Executor
 
-from components.DemoThresholding.src.utils.response import build_response
+from src.utils.response import build_response
 from components.DemoThresholding.src.models.PackageModel import PackageModel
 
 
@@ -135,12 +135,15 @@ class Thresholding(Component):
         return th_image
 
     def run(self):
-        img = Image.get_frame(img=self.images, redis_db=self.redis_db)
+        img = Image.get_frame(
+            img=self.images,
+            redis_db=self.redis_db
+        )
 
         img.value = self.thresholding(img.value)
 
         self.image = Image.set_frame(
-            img=img,
+            img=img.value,
             package_uID=self.uID,
             redis_db=self.redis_db
         )

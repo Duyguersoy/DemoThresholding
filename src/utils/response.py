@@ -3,17 +3,18 @@ from sdks.novavision.src.helper.package import PackageHelper
 from components.DemoThresholding.src.models.PackageModel import (
     PackageModel,
     PackageConfigs,
-    ConfigExecutorThresholding,
-    ConfigExecutorDual,
+    ConfigExecutor,
+
     ThresholdingExecutor,
     ThresholdingResponse,
     ThresholdingOutputs,
+
+    DemoSecondExecutor,
+    DemoSecondResponse,
+    DemoSecondOutputs,
+
     OutputImage,
-    DualThresholdingExecutor,
-    DualThresholdingResponse,
-    DualThresholdingOutputs,
-    OutputImageA,
-    OutputImageB,
+    OutputImageSecond,
 )
 
 
@@ -24,21 +25,11 @@ def build_response(context):
         outputImage=output_image
     )
 
-    response = ThresholdingResponse(
-        outputs=outputs
-    )
+    response = ThresholdingResponse(outputs=outputs)
+    selected_executor = ThresholdingExecutor(value=response)
 
-    thresholding_executor = ThresholdingExecutor(
-        value=response
-    )
-
-    executor = ConfigExecutorThresholding(
-        value=thresholding_executor
-    )
-
-    package_configs = PackageConfigs(
-        executor=executor
-    )
+    executor = ConfigExecutor(value=selected_executor)
+    package_configs = PackageConfigs(executor=executor)
 
     package = PackageHelper(
         packageModel=PackageModel,
@@ -50,29 +41,19 @@ def build_response(context):
 
 
 def build_dual_response(context):
-    output_image_a = OutputImageA(value=context.output_a)
-    output_image_b = OutputImageB(value=context.output_b)
+    output_image = OutputImage(value=context.image)
+    output_image_second = OutputImageSecond(value=context.imageSecond)
 
-    outputs = DualThresholdingOutputs(
-        outputImageA=output_image_a,
-        outputImageB=output_image_b
+    outputs = DemoSecondOutputs(
+        outputImage=output_image,
+        outputImageSecond=output_image_second
     )
 
-    response = DualThresholdingResponse(
-        outputs=outputs
-    )
+    response = DemoSecondResponse(outputs=outputs)
+    selected_executor = DemoSecondExecutor(value=response)
 
-    dual_thresholding_executor = DualThresholdingExecutor(
-        value=response
-    )
-
-    executor = ConfigExecutorDual(
-        value=dual_thresholding_executor
-    )
-
-    package_configs = PackageConfigs(
-        executor=executor
-    )
+    executor = ConfigExecutor(value=selected_executor)
+    package_configs = PackageConfigs(executor=executor)
 
     package = PackageHelper(
         packageModel=PackageModel,
