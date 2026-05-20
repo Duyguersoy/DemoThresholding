@@ -437,7 +437,7 @@ class DemoSecondExecutor(Config):
         title = "Demo Second Executor"
         schema_extra = {
             "target": {
-                "value": 1
+                "value": 0
             }
         }
 
