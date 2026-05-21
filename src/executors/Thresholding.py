@@ -9,7 +9,7 @@ from sdks.novavision.src.media.image import Image
 from sdks.novavision.src.base.component import Component
 from sdks.novavision.src.helper.executor import Executor
 
-from src.utils.response import build_response
+from components.DemoThresholding.src.utils.response import build_response
 from components.DemoThresholding.src.models.PackageModel import PackageModel
 
 
@@ -27,22 +27,22 @@ class Thresholding(Component):
     def load_parameters(self):
         if self.type == "GlobalThresholding":
             self.global_type = self.request.get_param("configGlobalType")
-            self.max_value = int(self.request.get_param("maxvalue"))
+            self.max_value = int(self.request.get_param("maxvalue") or 255)
 
             if self.global_type in [
                 "black white",
                 "black white inv",
                 "color like grey",
                 "blackening",
-                "blackening inv"
+                "blackening inv",
             ]:
-                self.th_value = int(self.request.get_param("thresholdvalue"))
+                self.th_value = int(self.request.get_param("thresholdvalue") or 127)
 
         elif self.type == "LocalThresholding":
             self.local_type = self.request.get_param("configLocalType")
-            self.max_value = int(self.request.get_param("maxvalue"))
-            self.sub_block = int(self.request.get_param("subblock"))
-            self.off_set = int(self.request.get_param("offset"))
+            self.max_value = int(self.request.get_param("maxvalue") or 255)
+            self.sub_block = int(self.request.get_param("subblock") or 11)
+            self.off_set = int(self.request.get_param("offset") or 0)
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
@@ -148,8 +148,8 @@ class Thresholding(Component):
             redis_db=self.redis_db
         )
 
-        packageModel = build_response(context=self)
-        return packageModel
+        package_model = build_response(context=self)
+        return package_model
 
 
 if __name__ == "__main__":

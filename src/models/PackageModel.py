@@ -1,8 +1,17 @@
 from pydantic import Field, validator
-from typing import List, Union, Literal
+from typing import Optional, Union, Literal
+
 from sdks.novavision.src.base.model import (
-    Package, Image, Inputs, Configs, Outputs,
-    Response, Request, Output, Input, Config
+    Package,
+    Images,
+    Inputs,
+    Configs,
+    Outputs,
+    Response,
+    Request,
+    Output,
+    Input,
+    Config,
 )
 
 
@@ -12,16 +21,8 @@ from sdks.novavision.src.base.model import (
 
 class InputImage(Input):
     name: Literal["inputImage"] = "inputImage"
-    value: Union[List[Image], Image]
-    type:str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get('value')
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
+    value: Images
+    type: Literal["Images"] = "Images"
 
     class Config:
         title = "Image"
@@ -29,16 +30,8 @@ class InputImage(Input):
 
 class InputImageSecond(Input):
     name: Literal["inputImageSecond"] = "inputImageSecond"
-    value: Union[List[Image], Image]
-    type: str = "object"
-    field: Literal["input"] = "input"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        image_value = values.get("value")
-        if isinstance(image_value, list):
-            return "list"
-        return "object"
+    value: Images
+    type: Literal["Images"] = "Images"
 
     class Config:
         title = "Second Image"
@@ -46,16 +39,8 @@ class InputImageSecond(Input):
 
 class OutputImage(Output):
     name: Literal["outputImage"] = "outputImage"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get('value')
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
+    value: Images
+    type: Literal["Images"] = "Images"
 
     class Config:
         title = "Image"
@@ -63,16 +48,8 @@ class OutputImage(Output):
 
 class OutputImageSecond(Output):
     name: Literal["outputImageSecond"] = "outputImageSecond"
-    value: Union[List[Image], Image]
-    type: str = "object"
-    
-    
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        image_value = values.get("value")
-        if isinstance(image_value, list):
-            return "list"
-        return "object"
+    value: Images
+    type: Literal["Images"] = "Images"
 
     class Config:
         title = "Second Output Image"
@@ -266,7 +243,7 @@ class ConfigGlobalType(Config):
         ConfigTypeColorLikeGrey,
         ConfigTypeBlackening,
         ConfigTypeBlackeningInv,
-        ConfigTypeAutoThresholding
+        ConfigTypeAutoThresholding,
     ] = ConfigTypeBlackWhite()
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
@@ -314,7 +291,7 @@ class ConfigType(Config):
 
 
 # ============================================================
-# SECOND EXECUTOR CONFIG OPTIONS
+# DUAL EXECUTOR CONFIG OPTIONS
 # ============================================================
 
 class ConfigDualBlur(Config):
@@ -364,11 +341,13 @@ class ThresholdingInputs(Inputs):
 class ThresholdingConfigs(Configs):
     configType: ConfigType
 
+
 class ThresholdingOutputs(Outputs):
     outputImage: OutputImage
 
+
 class ThresholdingRequest(Request):
-    inputs: Union[ThresholdingInputs, None] = None
+    inputs: Optional[ThresholdingInputs]
     configs: ThresholdingConfigs
 
     class Config:
@@ -378,12 +357,12 @@ class ThresholdingRequest(Request):
 
 
 class ThresholdingResponse(Response):
-    outputs: ThresholdingOutputs    
+    outputs: ThresholdingOutputs
 
 
-class ThresholdingExecutor(Config): 
+class ThresholdingExecutor(Config):
     name: Literal["ThresholdingExecutor"] = "ThresholdingExecutor"
-    value: Union[ThresholdingRequest, ThresholdingResponse] 
+    value: Union[ThresholdingRequest, ThresholdingResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
 
@@ -400,41 +379,42 @@ class ThresholdingExecutor(Config):
 # EXECUTOR 2: 2 INPUTS, 2 OUTPUTS
 # ============================================================
 
-class DemoSecondInputs(Inputs):
+class DualThresholdingInputs(Inputs):
     inputImage: InputImage
     inputImageSecond: InputImageSecond
 
 
-class DemoSecondConfigs(Configs):
-    configDualType: ConfigDualType    
+class DualThresholdingConfigs(Configs):
+    configDualType: ConfigDualType
 
-class DemoSecondOutputs(Outputs):
+
+class DualThresholdingOutputs(Outputs):
     outputImage: OutputImage
     outputImageSecond: OutputImageSecond
 
 
-class DemoSecondRequest(Request):
-    inputs: DemoSecondInputs
-    configs: DemoSecondConfigs
+class DualThresholdingRequest(Request):
+    inputs: Optional[DualThresholdingInputs]
+    configs: DualThresholdingConfigs
 
     class Config:
         schema_extra = {
-            "target": "configs" 
+            "target": "configs"
         }
 
 
-class DemoSecondResponse(Response):
-    outputs: DemoSecondOutputs
+class DualThresholdingResponse(Response):
+    outputs: DualThresholdingOutputs
 
 
-class DemoSecondExecutor(Config):
-    name: Literal["DemoSecondExecutor"] = "DemoSecondExecutor"
-    value: Union[DemoSecondRequest, DemoSecondResponse]
+class DualThresholdingExecutor(Config):
+    name: Literal["DualThresholdingExecutor"] = "DualThresholdingExecutor"
+    value: Union[DualThresholdingRequest, DualThresholdingResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
 
     class Config:
-        title = "Demo Second Executor"
+        title = "Dual Thresholding Executor"
         schema_extra = {
             "target": {
                 "value": 0
@@ -448,16 +428,19 @@ class DemoSecondExecutor(Config):
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
-    value: Union[ThresholdingExecutor, DemoSecondExecutor] 
+    value: Union[ThresholdingExecutor, DualThresholdingExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
     class Config:
         title = "Task"
 
+
 class PackageConfigs(Configs):
     executor: ConfigExecutor
+
 
 class PackageModel(Package):
     configs: PackageConfigs
     type: Literal["component"] = "component"
+    name: Literal["DemoDualThresholding"] = "DemoDualThresholding"

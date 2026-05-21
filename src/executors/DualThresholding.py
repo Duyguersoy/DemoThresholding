@@ -9,7 +9,7 @@ from sdks.novavision.src.media.image import Image
 from sdks.novavision.src.base.component import Component
 from sdks.novavision.src.helper.executor import Executor
 
-from src.utils.response import build_dual_response
+from components.DemoThresholding.src.utils.response import build_dual_response
 from components.DemoThresholding.src.models.PackageModel import PackageModel
 
 
@@ -21,7 +21,6 @@ class DualThresholding(Component):
 
         self.type = self.request.get_param("configDualType")
 
-        # PackageModel ile uyumlu input isimleri
         self.image_input = self.request.get_param("inputImage")
         self.image_second_input = self.request.get_param("inputImageSecond")
 
@@ -29,11 +28,11 @@ class DualThresholding(Component):
 
     def load_parameters(self):
         if self.type == "DualBlur":
-            self.blur_size = int(self.request.get_param("subblock"))
+            self.blur_size = int(self.request.get_param("subblock") or 11)
 
         elif self.type == "DualThreshold":
-            self.threshold_value = int(self.request.get_param("thresholdvalue"))
-            self.max_value = int(self.request.get_param("maxvalue"))
+            self.threshold_value = int(self.request.get_param("thresholdvalue") or 127)
+            self.max_value = int(self.request.get_param("maxvalue") or 255)
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
@@ -82,7 +81,6 @@ class DualThresholding(Component):
         img.value = self.process(img.value)
         img_second.value = self.process(img_second.value)
 
-        # response.py ile uyumlu isimler
         self.image = Image.set_frame(
             img=img.value,
             package_uID=self.uID,
@@ -95,7 +93,8 @@ class DualThresholding(Component):
             redis_db=self.redis_db
         )
 
-        return build_dual_response(context=self)
+        package_model = build_dual_response(context=self)
+        return package_model
 
 
 if __name__ == "__main__":

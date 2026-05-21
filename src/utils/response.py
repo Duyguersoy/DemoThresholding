@@ -9,9 +9,9 @@ from components.DemoThresholding.src.models.PackageModel import (
     ThresholdingResponse,
     ThresholdingOutputs,
 
-    DemoSecondExecutor,
-    DemoSecondResponse,
-    DemoSecondOutputs,
+    DualThresholdingExecutor,
+    DualThresholdingResponse,
+    DualThresholdingOutputs,
 
     OutputImage,
     OutputImageSecond,
@@ -44,13 +44,13 @@ def build_dual_response(context):
     output_image = OutputImage(value=context.image)
     output_image_second = OutputImageSecond(value=context.imageSecond)
 
-    outputs = DemoSecondOutputs(
+    outputs = DualThresholdingOutputs(
         outputImage=output_image,
         outputImageSecond=output_image_second
     )
 
-    response = DemoSecondResponse(outputs=outputs)
-    selected_executor = DemoSecondExecutor(value=response)
+    response = DualThresholdingResponse(outputs=outputs)
+    selected_executor = DualThresholdingExecutor(value=response)
 
     executor = ConfigExecutor(value=selected_executor)
     package_configs = PackageConfigs(executor=executor)
