@@ -68,32 +68,50 @@ class DualThresholding(Component):
         if self.type == "GlobalThresholding":
             if self.global_type == "black white":
                 _, th_image = cv2.threshold(
-                    image, self.th_value, self.max_value, cv2.THRESH_BINARY
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_BINARY
                 )
 
             elif self.global_type == "black white inv":
                 _, th_image = cv2.threshold(
-                    image, self.th_value, self.max_value, cv2.THRESH_BINARY_INV
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_BINARY_INV
                 )
 
             elif self.global_type == "color like grey":
                 _, th_image = cv2.threshold(
-                    image, self.th_value, self.max_value, cv2.THRESH_TRUNC
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_TRUNC
                 )
 
             elif self.global_type == "blackening":
                 _, th_image = cv2.threshold(
-                    image, self.th_value, self.max_value, cv2.THRESH_TOZERO
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_TOZERO
                 )
 
             elif self.global_type == "blackening inv":
                 _, th_image = cv2.threshold(
-                    image, self.th_value, self.max_value, cv2.THRESH_TOZERO_INV
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_TOZERO_INV
                 )
 
             elif self.global_type == "auto thresholding":
                 _, th_image = cv2.threshold(
-                    image, 0, self.max_value, cv2.THRESH_OTSU + cv2.THRESH_BINARY
+                    image,
+                    0,
+                    self.max_value,
+                    cv2.THRESH_OTSU + cv2.THRESH_BINARY
                 )
 
         elif self.type == "LocalThresholding":
