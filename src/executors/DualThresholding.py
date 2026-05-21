@@ -28,7 +28,11 @@ class DualThresholding(Component):
 
     def load_parameters(self):
         if self.type == "DualBlur":
-            self.blur_size = int(self.request.get_param("subblock"))
+            self.blur_size = int(
+                self.request.get_param("subblock")
+                or self.request.get_param("blurSize")
+                or 11
+            )
 
         elif self.type == "DualThreshold":
             self.threshold_value = int(self.request.get_param("thresholdvalue"))
@@ -75,13 +79,13 @@ class DualThresholding(Component):
         img_b.value = self.process(img_b.value)
 
         self.output_a = Image.set_frame(
-            img=img_a,
+            img=img_a.value,
             package_uID=self.uID,
             redis_db=self.redis_db
         )
 
         self.output_b = Image.set_frame(
-            img=img_b,
+            img=img_b.value,
             package_uID=self.uID,
             redis_db=self.redis_db
         )
