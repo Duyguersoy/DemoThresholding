@@ -317,7 +317,7 @@ class ConfigType(Config):
 class ConfigDualBlur(Config):
     name: Literal["DualBlur"] = "DualBlur"
     value: Literal["DualBlur"] = "DualBlur"
-    blurSize: ConfigSubBlock
+    subBlock: ConfigSubBlock
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
 
@@ -346,7 +346,7 @@ class ConfigDualType(Config):
     class Config:
         title = "Dual Method"
         json_schema_extra = {
-            "shortDescription": "Select dual image processing method"
+            "shortDescription": "Dual Image Processing Method"
         }
 
 
