@@ -417,7 +417,7 @@ class DualThresholdingExecutor(Config):
         title = "Dual Thresholding Executor"
         schema_extra = {
             "target": {
-                "value": 0
+                "value": 1
             }
         }
 
