@@ -1,5 +1,5 @@
 from pydantic import Field, validator
-from typing import List, Optional, Union, Literal
+from typing import List, Union, Literal
 
 from sdks.novavision.src.base.model import (
     Package,
@@ -27,7 +27,23 @@ class InputImage(Input):
             return "object"
         elif isinstance(value, list):
             return "list"
-        return "object"
+
+    class Config:
+        title = "Image"
+
+
+class OutputImage(Output):
+    name: Literal["outputImage"] = "outputImage"
+    value: Union[List[Image], Image]
+    type: str = "object"
+
+    @validator("type", pre=True, always=True)
+    def set_type_based_on_value(cls, value, values):
+        value = values.get("value")
+        if isinstance(value, Image):
+            return "object"
+        elif isinstance(value, list):
+            return "list"
 
     class Config:
         title = "Image"
@@ -45,28 +61,9 @@ class InputImageSecond(Input):
             return "object"
         elif isinstance(value, list):
             return "list"
-        return "object"
 
     class Config:
         title = "Second Image"
-
-
-class OutputImage(Output):
-    name: Literal["outputImage"] = "outputImage"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
-
-    class Config:
-        title = "Image"
 
 
 class OutputImageSecond(Output):
@@ -81,7 +78,6 @@ class OutputImageSecond(Output):
             return "object"
         elif isinstance(value, list):
             return "list"
-        return "object"
 
     class Config:
         title = "Second Output Image"
@@ -102,19 +98,20 @@ class ConfigOffSet(Config):
 
 
 class ConfigSubBlock(Config):
+    @validator("value")
+    def validate_odd_integer_range(cls, value):
+        if value % 2:
+            if value < 3 or value > 191:
+                raise ValueError("Invalid value: must be an odd integer between 3 and 191")
+            return value
+        else:
+            raise ValueError("Invalid value: must be an odd integer between 3 and 191")
+
     name: Literal["subblock"] = "subblock"
     value: int = Field(default=11, ge=3.0, le=191.0)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     placeHolder: Literal["odd integers between [3, 191]"] = "odd integers between [3, 191]"
-
-    @validator("value")
-    def validate_odd_integer_range(cls, value):
-        if value % 2 == 0 or value < 3 or value > 191:
-            raise ValueError(
-                "Invalid value: must be an odd integer between 3 and 191"
-            )
-        return value
 
     class Config:
         title = "SubBlock Size"
@@ -305,10 +302,7 @@ class ConfigTypeGlobalThresholding(Config):
 
 class ConfigType(Config):
     name: Literal["configType"] = "configType"
-    value: Union[
-        ConfigTypeGlobalThresholding,
-        ConfigTypeLocalThresholding,
-    ]
+    value: Union[ConfigTypeGlobalThresholding, ConfigTypeLocalThresholding]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
@@ -332,10 +326,6 @@ class ThresholdingConfigs(Configs):
     configType: ConfigType
 
 
-class DualThresholdingConfigs(Configs):
-    configType: ConfigType
-
-
 class ThresholdingOutputs(Outputs):
     outputImage: OutputImage
 
@@ -356,19 +346,8 @@ class ThresholdingRequest(Request):
 
 
 class DualThresholdingRequest(Request):
-    inputs: Optional[DualThresholdingInputs] = None
-    configs: DualThresholdingConfigs = DualThresholdingConfigs(
-        configType=ConfigType(
-            value=ConfigTypeGlobalThresholding(
-                configEdit=ConfigGlobalType(
-                    value=ConfigTypeBlackWhite(
-                        thresholdVal=ConfigThresholdVal(),
-                        maxVal=ConfigMaxVal()
-                    )
-                )
-            )
-        )
-    )
+    inputs: DualThresholdingInputs
+    configs: ThresholdingConfigs
 
     class Config:
         json_schema_extra = {
@@ -401,10 +380,7 @@ class ThresholdingExecutor(Config):
 
 class DualThresholdingExecutor(Config):
     name: Literal["DualThresholding"] = "DualThresholding"
-    value: Union[
-        DualThresholdingRequest,
-        DualThresholdingResponse
-    ] = DualThresholdingRequest()
+    value: Union[DualThresholdingRequest, DualThresholdingResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
 
@@ -419,10 +395,7 @@ class DualThresholdingExecutor(Config):
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
-    value: Union[
-        ThresholdingExecutor,
-        DualThresholdingExecutor
-    ]
+    value: Union[ThresholdingExecutor, DualThresholdingExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
