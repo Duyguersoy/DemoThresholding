@@ -21,22 +21,18 @@ class DualThresholding(Component):
 
         self.type = self.request.get_param("configDualType")
 
-        self.image_a = self.request.get_param("inputImageA")
-        self.image_b = self.request.get_param("inputImageB")
+        self.image_input = self.request.get_param("inputImage")
+        self.image_second_input = self.request.get_param("inputImageSecond")
 
         self.load_parameters()
 
     def load_parameters(self):
         if self.type == "DualBlur":
-            self.blur_size = int(
-                self.request.get_param("subblock")
-                or self.request.get_param("blurSize")
-                or 11
-            )
+            self.blur_size = int(self.request.get_param("subblock") or 11)
 
         elif self.type == "DualThreshold":
-            self.threshold_value = int(self.request.get_param("thresholdvalue"))
-            self.max_value = int(self.request.get_param("maxvalue"))
+            self.threshold_value = int(self.request.get_param("thresholdvalue") or 127)
+            self.max_value = int(self.request.get_param("maxvalue") or 255)
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
@@ -72,26 +68,33 @@ class DualThresholding(Component):
         return image
 
     def run(self):
-        img_a = Image.get_frame(img=self.image_a, redis_db=self.redis_db)
-        img_b = Image.get_frame(img=self.image_b, redis_db=self.redis_db)
+        img = Image.get_frame(
+            img=self.image_input,
+            redis_db=self.redis_db
+        )
 
-        img_a.value = self.process(img_a.value)
-        img_b.value = self.process(img_b.value)
+        img_second = Image.get_frame(
+            img=self.image_second_input,
+            redis_db=self.redis_db
+        )
 
-        self.output_a = Image.set_frame(
-            img=img_a.value,
+        img.value = self.process(img.value)
+        img_second.value = self.process(img_second.value)
+
+        self.image = Image.set_frame(
+            img=img.value,
             package_uID=self.uID,
             redis_db=self.redis_db
         )
 
-        self.output_b = Image.set_frame(
-            img=img_b.value,
+        self.imageSecond = Image.set_frame(
+            img=img_second.value,
             package_uID=self.uID,
             redis_db=self.redis_db
         )
 
-        packageModel = build_dual_response(context=self)
-        return packageModel
+        package_model = build_dual_response(context=self)
+        return package_model
 
 
 if __name__ == "__main__":

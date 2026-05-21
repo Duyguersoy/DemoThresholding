@@ -1,118 +1,63 @@
 from pydantic import Field, validator
-from typing import List, Union, Literal
+from typing import Optional, Union, Literal
+
 from sdks.novavision.src.base.model import (
-    Package, Image, Inputs, Configs, Outputs,
-    Response, Request, Output, Input, Config
+    Package,
+    Images,
+    Inputs,
+    Configs,
+    Outputs,
+    Response,
+    Request,
+    Output,
+    Input,
+    Config,
 )
 
 
+# ============================================================
+# INPUT / OUTPUT PARAMETERS
+# ============================================================
+
 class InputImage(Input):
     name: Literal["inputImage"] = "inputImage"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
+    value: Images
+    type: Literal["Images"] = "Images"
 
     class Config:
         title = "Image"
 
 
-class InputImageA(Input):
-    name: Literal["inputImageA"] = "inputImageA"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
+class InputImageSecond(Input):
+    name: Literal["inputImageSecond"] = "inputImageSecond"
+    value: Images
+    type: Literal["Images"] = "Images"
 
     class Config:
-        title = "Image A"
-
-
-class InputImageB(Input):
-    name: Literal["inputImageB"] = "inputImageB"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
-
-    class Config:
-        title = "Image B"
+        title = "Second Image"
 
 
 class OutputImage(Output):
     name: Literal["outputImage"] = "outputImage"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
+    value: Images
+    type: Literal["Images"] = "Images"
 
     class Config:
         title = "Image"
 
 
-class OutputImageA(Output):
-    name: Literal["outputImageA"] = "outputImageA"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
+class OutputImageSecond(Output):
+    name: Literal["outputImageSecond"] = "outputImageSecond"
+    value: Images
+    type: Literal["Images"] = "Images"
 
     class Config:
-        title = "Output Image A"
+        title = "Second Output Image"
 
 
-class OutputImageB(Output):
-    name: Literal["outputImageB"] = "outputImageB"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
-
-    class Config:
-        title = "Output Image B"
-
+# ============================================================
+# SHARED CONFIG PARAMETERS
+# ============================================================
 
 class ConfigOffSet(Config):
     name: Literal["offset"] = "offset"
@@ -123,29 +68,27 @@ class ConfigOffSet(Config):
 
     class Config:
         title = "Offset"
-        json_schema_extra = {
+        schema_extra = {
             "shortDescription": "Sensitivity Constant"
         }
 
 
 class ConfigSubBlock(Config):
-    @validator("value")
-    def validate_odd_integer_range(cls, value):
-        if value % 2 == 0:
-            raise ValueError("Invalid value: must be an odd integer between 3 and 191")
-        if value < 3 or value > 191:
-            raise ValueError("Invalid value: must be an odd integer between 3 and 191")
-        return value
-
     name: Literal["subblock"] = "subblock"
     value: int = Field(default=11, ge=3, le=191)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     placeHolder: Literal["odd integers between [3, 191]"] = "odd integers between [3, 191]"
 
+    @validator("value")
+    def validate_odd_integer_range(cls, value):
+        if value % 2 == 0 or value < 3 or value > 191:
+            raise ValueError("Invalid value: must be an odd integer between 3 and 191")
+        return value
+
     class Config:
         title = "SubBlock Size"
-        json_schema_extra = {
+        schema_extra = {
             "shortDescription": "Neighborhood Area Size"
         }
 
@@ -159,7 +102,7 @@ class ConfigMaxVal(Config):
 
     class Config:
         title = "Max Value"
-        json_schema_extra = {
+        schema_extra = {
             "shortDescription": "Active Pixel Color"
         }
 
@@ -173,14 +116,18 @@ class ConfigThresholdVal(Config):
 
     class Config:
         title = "Threshold Value"
-        json_schema_extra = {
+        schema_extra = {
             "shortDescription": "Cutoff Point"
         }
 
 
+# ============================================================
+# THRESHOLDING CONFIG OPTIONS
+# ============================================================
+
 class ConfigTypeAutoThresholding(Config):
     name: Literal["auto thresholding"] = "auto thresholding"
-    maxVal: ConfigMaxVal
+    maxVal: ConfigMaxVal = ConfigMaxVal()
     value: Literal["auto thresholding"] = "auto thresholding"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -191,8 +138,8 @@ class ConfigTypeAutoThresholding(Config):
 
 class ConfigTypeBlackeningInv(Config):
     name: Literal["blackening inv"] = "blackening inv"
-    thresholdVal: ConfigThresholdVal
-    maxVal: ConfigMaxVal
+    thresholdVal: ConfigThresholdVal = ConfigThresholdVal()
+    maxVal: ConfigMaxVal = ConfigMaxVal()
     value: Literal["blackening inv"] = "blackening inv"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -203,8 +150,8 @@ class ConfigTypeBlackeningInv(Config):
 
 class ConfigTypeBlackening(Config):
     name: Literal["blackening"] = "blackening"
-    thresholdVal: ConfigThresholdVal
-    maxVal: ConfigMaxVal
+    thresholdVal: ConfigThresholdVal = ConfigThresholdVal()
+    maxVal: ConfigMaxVal = ConfigMaxVal()
     value: Literal["blackening"] = "blackening"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -215,8 +162,8 @@ class ConfigTypeBlackening(Config):
 
 class ConfigTypeColorLikeGrey(Config):
     name: Literal["color like grey"] = "color like grey"
-    thresholdVal: ConfigThresholdVal
-    maxVal: ConfigMaxVal
+    thresholdVal: ConfigThresholdVal = ConfigThresholdVal()
+    maxVal: ConfigMaxVal = ConfigMaxVal()
     value: Literal["color like grey"] = "color like grey"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -227,8 +174,8 @@ class ConfigTypeColorLikeGrey(Config):
 
 class ConfigTypeBlackWhiteInv(Config):
     name: Literal["black white inv"] = "black white inv"
-    thresholdVal: ConfigThresholdVal
-    maxVal: ConfigMaxVal
+    thresholdVal: ConfigThresholdVal = ConfigThresholdVal()
+    maxVal: ConfigMaxVal = ConfigMaxVal()
     value: Literal["black white inv"] = "black white inv"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -239,8 +186,8 @@ class ConfigTypeBlackWhiteInv(Config):
 
 class ConfigTypeBlackWhite(Config):
     name: Literal["black white"] = "black white"
-    thresholdVal: ConfigThresholdVal
-    maxVal: ConfigMaxVal
+    thresholdVal: ConfigThresholdVal = ConfigThresholdVal()
+    maxVal: ConfigMaxVal = ConfigMaxVal()
     value: Literal["black white"] = "black white"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -251,9 +198,9 @@ class ConfigTypeBlackWhite(Config):
 
 class ConfigMean(Config):
     name: Literal["mean"] = "mean"
-    maxVal: ConfigMaxVal
-    subBlock: ConfigSubBlock
-    offSet: ConfigOffSet
+    maxVal: ConfigMaxVal = ConfigMaxVal()
+    subBlock: ConfigSubBlock = ConfigSubBlock()
+    offSet: ConfigOffSet = ConfigOffSet()
     value: Literal["mean"] = "mean"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -264,9 +211,9 @@ class ConfigMean(Config):
 
 class ConfigGaussian(Config):
     name: Literal["gaussian"] = "gaussian"
-    maxVal: ConfigMaxVal
-    subBlock: ConfigSubBlock
-    offSet: ConfigOffSet
+    maxVal: ConfigMaxVal = ConfigMaxVal()
+    subBlock: ConfigSubBlock = ConfigSubBlock()
+    offSet: ConfigOffSet = ConfigOffSet()
     value: Literal["gaussian"] = "gaussian"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -275,51 +222,15 @@ class ConfigGaussian(Config):
         title = "Gaussian"
 
 
-class ConfigDualBlur(Config):
-    name: Literal["DualBlur"] = "DualBlur"
-    value: Literal["DualBlur"] = "DualBlur"
-    blurSize: ConfigSubBlock
-    type: Literal["string"] = "string"
-    field: Literal["option"] = "option"
-
-    class Config:
-        title = "Dual Blur"
-
-
-class ConfigDualThreshold(Config):
-    name: Literal["DualThreshold"] = "DualThreshold"
-    value: Literal["DualThreshold"] = "DualThreshold"
-    thresholdVal: ConfigThresholdVal
-    maxVal: ConfigMaxVal
-    type: Literal["string"] = "string"
-    field: Literal["option"] = "option"
-
-    class Config:
-        title = "Dual Threshold"
-
-
-class ConfigDualType(Config):
-    name: Literal["configDualType"] = "configDualType"
-    value: Union[ConfigDualBlur, ConfigDualThreshold]
-    type: Literal["object"] = "object"
-    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-
-    class Config:
-        title = "Dual Method"
-        json_schema_extra = {
-            "shortDescription": "Select dual image processing method"
-        }
-
-
 class ConfigLocalType(Config):
     name: Literal["configLocalType"] = "configLocalType"
-    value: Union[ConfigMean, ConfigGaussian]
+    value: Union[ConfigMean, ConfigGaussian] = ConfigMean()
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
     class Config:
         title = "Type"
-        json_schema_extra = {
+        schema_extra = {
             "shortDescription": "Adaptive Algorithm"
         }
 
@@ -332,20 +243,20 @@ class ConfigGlobalType(Config):
         ConfigTypeColorLikeGrey,
         ConfigTypeBlackening,
         ConfigTypeBlackeningInv,
-        ConfigTypeAutoThresholding
-    ]
+        ConfigTypeAutoThresholding,
+    ] = ConfigTypeBlackWhite()
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
     class Config:
         title = "Type"
-        json_schema_extra = {
+        schema_extra = {
             "shortDescription": "Separation Logic"
         }
 
 
 class ConfigTypeLocalThresholding(Config):
-    configEdit: ConfigLocalType
+    configEdit: ConfigLocalType = ConfigLocalType()
     name: Literal["LocalThresholding"] = "LocalThresholding"
     value: Literal["LocalThresholding"] = "LocalThresholding"
     type: Literal["string"] = "string"
@@ -356,7 +267,7 @@ class ConfigTypeLocalThresholding(Config):
 
 
 class ConfigTypeGlobalThresholding(Config):
-    configEdit: ConfigGlobalType
+    configEdit: ConfigGlobalType = ConfigGlobalType()
     name: Literal["GlobalThresholding"] = "GlobalThresholding"
     value: Literal["GlobalThresholding"] = "GlobalThresholding"
     type: Literal["string"] = "string"
@@ -368,16 +279,60 @@ class ConfigTypeGlobalThresholding(Config):
 
 class ConfigType(Config):
     name: Literal["configType"] = "configType"
-    value: Union[ConfigTypeGlobalThresholding, ConfigTypeLocalThresholding]
+    value: Union[ConfigTypeGlobalThresholding, ConfigTypeLocalThresholding] = ConfigTypeGlobalThresholding()
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
     class Config:
         title = "Method"
-        json_schema_extra = {
+        schema_extra = {
             "shortDescription": "Segmentation Strategy"
         }
 
+
+# ============================================================
+# DUAL EXECUTOR CONFIG OPTIONS
+# ============================================================
+
+class ConfigDualBlur(Config):
+    name: Literal["DualBlur"] = "DualBlur"
+    value: Literal["DualBlur"] = "DualBlur"
+    blurSize: ConfigSubBlock = ConfigSubBlock()
+    type: Literal["string"] = "string"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Dual Blur"
+
+
+class ConfigDualThreshold(Config):
+    name: Literal["DualThreshold"] = "DualThreshold"
+    value: Literal["DualThreshold"] = "DualThreshold"
+    thresholdVal: ConfigThresholdVal = ConfigThresholdVal()
+    maxVal: ConfigMaxVal = ConfigMaxVal()
+    type: Literal["string"] = "string"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Dual Threshold"
+
+
+class ConfigDualType(Config):
+    name: Literal["configDualType"] = "configDualType"
+    value: Union[ConfigDualBlur, ConfigDualThreshold] = ConfigDualBlur()
+    type: Literal["object"] = "object"
+    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
+
+    class Config:
+        title = "Dual Method"
+        schema_extra = {
+            "shortDescription": "Select dual image processing method"
+        }
+
+
+# ============================================================
+# EXECUTOR 1: 1 INPUT, 1 OUTPUT
+# ============================================================
 
 class ThresholdingInputs(Inputs):
     inputImage: InputImage
@@ -392,46 +347,17 @@ class ThresholdingOutputs(Outputs):
 
 
 class ThresholdingRequest(Request):
-    inputs: ThresholdingInputs
+    inputs: Optional[ThresholdingInputs]
     configs: ThresholdingConfigs
 
     class Config:
-        json_schema_extra = {
+        schema_extra = {
             "target": "configs"
         }
 
 
 class ThresholdingResponse(Response):
     outputs: ThresholdingOutputs
-
-
-class DualThresholdingInputs(Inputs):
-    inputImageA: InputImageA
-    inputImageB: InputImageB
-
-
-class DualThresholdingConfigs(Configs):
-    configDualType: ConfigDualType
-
-
-class DualThresholdingOutputs(Outputs):
-    outputImageA: OutputImageA
-    outputImageB: OutputImageB
-
-
-class DualThresholdingRequest(Request):
-    inputs: DualThresholdingInputs
-    configs: DualThresholdingConfigs
-
-    class Config:
-        json_schema_extra = {
-            "target": "configs"
-
-        }
-
-
-class DualThresholdingResponse(Response):
-    outputs: DualThresholdingOutputs
 
 
 class ThresholdingExecutor(Config):
@@ -441,12 +367,44 @@ class ThresholdingExecutor(Config):
     field: Literal["option"] = "option"
 
     class Config:
-        title = "Thresholding"
-        json_schema_extra = {
+        title = "Thresholding Executor"
+        schema_extra = {
             "target": {
                 "value": 0
             }
         }
+
+
+# ============================================================
+# EXECUTOR 2: 2 INPUTS, 2 OUTPUTS
+# ============================================================
+
+class DualThresholdingInputs(Inputs):
+    inputImage: InputImage
+    inputImageSecond: InputImageSecond
+
+
+class DualThresholdingConfigs(Configs):
+    configDualType: ConfigDualType
+
+
+class DualThresholdingOutputs(Outputs):
+    outputImage: OutputImage
+    outputImageSecond: OutputImageSecond
+
+
+class DualThresholdingRequest(Request):
+    inputs: Optional[DualThresholdingInputs]
+    configs: DualThresholdingConfigs
+
+    class Config:
+        schema_extra = {
+            "target": "configs"
+        }
+
+
+class DualThresholdingResponse(Response):
+    outputs: DualThresholdingOutputs
 
 
 class DualThresholdingExecutor(Config):
@@ -456,13 +414,17 @@ class DualThresholdingExecutor(Config):
     field: Literal["option"] = "option"
 
     class Config:
-        title = "Dual Thresholding"
-        json_schema_extra = {
+        title = "Dual Thresholding Executor"
+        schema_extra = {
             "target": {
                 "value": 1
             }
         }
 
+
+# ============================================================
+# PACKAGE EXECUTOR SELECTOR
+# ============================================================
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
