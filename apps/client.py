@@ -7,7 +7,7 @@ import json
 
 sys.path.append(os.path.join(os.path.dirname(__file__),'../../../'))
 
-from components.Thresholding.src.models.PackageModel import PackageModel, PackageConfigs, ConfigExecutorThresholding, \
+from components.DemoThresholding.src.models.PackageModel import PackageModel, PackageConfigs, ConfigExecutorThresholding, \
     ThresholdingExecutor, ThresholdingRequest, ThresholdingConfigs, ThresholdingInputs, ConfigType, \
     ConfigTypeGlobalThresholding, ConfigGlobalType, ConfigTypeBlackWhite, ConfigThresholdVal, ConfigMaxVal, InputImage, \
     ConfigTypeLocalThresholding, ConfigLocalType, ConfigMean, ConfigSubBlock, ConfigOffSet, ConfigTypeBlackWhiteInv, \
@@ -20,7 +20,7 @@ from sdks.novavision.src.media.image import Image as image
 ENDPOINT_URL = "http://127.0.0.1:8000/api"
 
 def infer():
-    imread = cv2.imread("/opt/project/components/Thresholding/resources/yorkshire_terrier.jpg")
+    imread = cv2.imread("/opt/project/components/DemoThresholding/resources/yorkshire_terrier.jpg")
     image_obj = Image(
         name="DemoImage",
         uID="001",
