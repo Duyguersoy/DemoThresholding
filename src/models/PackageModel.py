@@ -417,7 +417,7 @@ class DualThresholdingExecutor(Config):
         title = "Dual Thresholding Executor"
         json_schema_extra = {
             "target": {
-                "value": 0
+                "value": 1
             }
         }
 
@@ -443,5 +443,4 @@ class PackageConfigs(Configs):
 class PackageModel(Package):
     configs: PackageConfigs
     type: Literal["component"] = "component"
-
     name: Literal["DemoThresholding"] = "DemoThresholding"

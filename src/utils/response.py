@@ -61,4 +61,4 @@ def build_dual_response(context):
     )
 
     package_model = package.build_model(context)
-    return package_model
+    return package_model 
