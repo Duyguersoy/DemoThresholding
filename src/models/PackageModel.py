@@ -33,24 +33,6 @@ class InputImage(Input):
         title = "Image"
 
 
-class InputImageSecond(Input):
-    name: Literal["inputImageSecond"] = "inputImageSecond"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
-
-    class Config:
-        title = "Second Image"
-
-
 class OutputImage(Output):
     name: Literal["outputImage"] = "outputImage"
     value: Union[List[Image], Image]
@@ -67,6 +49,24 @@ class OutputImage(Output):
 
     class Config:
         title = "Image"
+
+
+class InputImageSecond(Input):
+    name: Literal["inputImageSecond"] = "inputImageSecond"
+    value: Union[List[Image], Image]
+    type: str = "object"
+
+    @validator("type", pre=True, always=True)
+    def set_type_based_on_value(cls, value, values):
+        value = values.get("value")
+        if isinstance(value, Image):
+            return "object"
+        elif isinstance(value, list):
+            return "list"
+        return "object"
+
+    class Config:
+        title = "Second Image"
 
 
 class OutputImageSecond(Output):
@@ -89,7 +89,7 @@ class OutputImageSecond(Output):
 
 class ConfigOffSet(Config):
     name: Literal["offset"] = "offset"
-    value: int = Field(default=0, ge=-15, le=15)
+    value: int = Field(default=0, ge=-15.0, le=15.0)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     placeHolder: Literal["integers between [-15, 15]"] = "integers between [-15, 15]"
@@ -102,17 +102,20 @@ class ConfigOffSet(Config):
 
 
 class ConfigSubBlock(Config):
+    @validator("value")
+    def validate_odd_integer_range(cls, value):
+        if value % 2:
+            if value < 3 or value > 191:
+                raise ValueError("Invalid value: must be an odd integer between 3 and 191")
+            return value
+        else:
+            raise ValueError("Invalid value: must be an odd integer between 3 and 191")
+
     name: Literal["subblock"] = "subblock"
-    value: int = Field(default=11, ge=3, le=191)
+    value: int = Field(default=11, ge=3.0, le=191.0)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     placeHolder: Literal["odd integers between [3, 191]"] = "odd integers between [3, 191]"
-
-    @validator("value")
-    def validate_odd_integer_range(cls, value):
-        if value % 2 == 0 or value < 3 or value > 191:
-            raise ValueError("Invalid value: must be an odd integer between 3 and 191")
-        return value
 
     class Config:
         title = "SubBlock Size"
@@ -123,7 +126,7 @@ class ConfigSubBlock(Config):
 
 class ConfigMaxVal(Config):
     name: Literal["maxvalue"] = "maxvalue"
-    value: int = Field(default=255, ge=0, le=255)
+    value: int = Field(default=255, ge=0, le=255.0)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     placeHolder: Literal["integers between [0, 255]"] = "integers between [0, 255]"
@@ -137,7 +140,7 @@ class ConfigMaxVal(Config):
 
 class ConfigThresholdVal(Config):
     name: Literal["thresholdvalue"] = "thresholdvalue"
-    value: int = Field(default=127, ge=0, le=255)
+    value: int = Field(default=127, ge=0, le=255.0)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     placeHolder: Literal["integers between [0, 255]"] = "integers between [0, 255]"
@@ -314,42 +317,6 @@ class ConfigType(Config):
         }
 
 
-class ConfigDualBlur(Config):
-    name: Literal["DualBlur"] = "DualBlur"
-    value: Literal["DualBlur"] = "DualBlur"
-    subBlock: ConfigSubBlock
-    type: Literal["string"] = "string"
-    field: Literal["option"] = "option"
-
-    class Config:
-        title = "Dual Blur"
-
-
-class ConfigDualThreshold(Config):
-    name: Literal["DualThreshold"] = "DualThreshold"
-    value: Literal["DualThreshold"] = "DualThreshold"
-    thresholdVal: ConfigThresholdVal
-    maxVal: ConfigMaxVal
-    type: Literal["string"] = "string"
-    field: Literal["option"] = "option"
-
-    class Config:
-        title = "Dual Threshold"
-
-
-class ConfigDualType(Config):
-    name: Literal["configDualType"] = "configDualType"
-    value: Union[ConfigDualBlur, ConfigDualThreshold]
-    type: Literal["object"] = "object"
-    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-
-    class Config:
-        title = "Dual Method"
-        json_schema_extra = {
-            "shortDescription": "Dual Image Processing Method"
-        }
-
-
 class ThresholdingInputs(Inputs):
     inputImage: InputImage
 
@@ -361,10 +328,6 @@ class DualThresholdingInputs(Inputs):
 
 class ThresholdingConfigs(Configs):
     configType: ConfigType
-
-
-class DualThresholdingConfigs(Configs):
-    configDualType: ConfigDualType
 
 
 class ThresholdingOutputs(Outputs):
@@ -388,7 +351,7 @@ class ThresholdingRequest(Request):
 
 class DualThresholdingRequest(Request):
     inputs: DualThresholdingInputs
-    configs: DualThresholdingConfigs
+    configs: ThresholdingConfigs
 
     class Config:
         json_schema_extra = {

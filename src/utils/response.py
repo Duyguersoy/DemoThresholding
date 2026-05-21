@@ -19,11 +19,6 @@ from components.DemoThresholding.src.models.PackageModel import (
 
 
 def build_response(context):
-    """
-    Tek input / tek output olan Thresholding executor response'unu oluşturur.
-    context.image bekler.
-    """
-
     output_image = OutputImage(value=context.image)
 
     outputs = ThresholdingOutputs(
@@ -45,11 +40,6 @@ def build_response(context):
 
 
 def build_dual_response(context):
-    """
-    İki input / iki output olan DualThresholding executor response'unu oluşturur.
-    context.image ve context.imageSecond bekler.
-    """
-
     output_image = OutputImage(value=context.image)
     output_image_second = OutputImageSecond(value=context.imageSecond)
 
