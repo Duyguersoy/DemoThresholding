@@ -1,5 +1,5 @@
 from pydantic import Field, validator
-from typing import List, Union, Literal
+from typing import List, Optional, Union, Literal
 
 from sdks.novavision.src.base.model import (
     Package,
@@ -27,6 +27,7 @@ class InputImage(Input):
             return "object"
         elif isinstance(value, list):
             return "list"
+        return "object"
 
     class Config:
         title = "Image"
@@ -44,6 +45,7 @@ class InputImageSecond(Input):
             return "object"
         elif isinstance(value, list):
             return "list"
+        return "object"
 
     class Config:
         title = "Second Image"
@@ -61,6 +63,7 @@ class OutputImage(Output):
             return "object"
         elif isinstance(value, list):
             return "list"
+        return "object"
 
     class Config:
         title = "Image"
@@ -78,6 +81,7 @@ class OutputImageSecond(Output):
             return "object"
         elif isinstance(value, list):
             return "list"
+        return "object"
 
     class Config:
         title = "Second Output Image"
@@ -92,29 +96,31 @@ class ConfigOffSet(Config):
 
     class Config:
         title = "Offset"
-        schema_extra = {"shortDescription": "Sensitivity Constant"}
-        json_schema_extra = {"shortDescription": "Sensitivity Constant"}
+        json_schema_extra = {
+            "shortDescription": "Sensitivity Constant"
+        }
 
 
 class ConfigSubBlock(Config):
-    @validator("value")
-    def validate_odd_integer_range(cls, value):
-        if value % 2:
-            if value < 3 or value > 191:
-                raise ValueError("Invalid value: must be an odd integer between 3 and 191")
-            return value
-        raise ValueError("Invalid value: must be an odd integer between 3 and 191")
-
     name: Literal["subblock"] = "subblock"
     value: int = Field(default=11, ge=3.0, le=191.0)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     placeHolder: Literal["odd integers between [3, 191]"] = "odd integers between [3, 191]"
 
+    @validator("value")
+    def validate_odd_integer_range(cls, value):
+        if value % 2 == 0 or value < 3 or value > 191:
+            raise ValueError(
+                "Invalid value: must be an odd integer between 3 and 191"
+            )
+        return value
+
     class Config:
         title = "SubBlock Size"
-        schema_extra = {"shortDescription": "Neighborhood Area Size"}
-        json_schema_extra = {"shortDescription": "Neighborhood Area Size"}
+        json_schema_extra = {
+            "shortDescription": "Neighborhood Area Size"
+        }
 
 
 class ConfigMaxVal(Config):
@@ -126,8 +132,9 @@ class ConfigMaxVal(Config):
 
     class Config:
         title = "Max Value"
-        schema_extra = {"shortDescription": "Active Pixel Color"}
-        json_schema_extra = {"shortDescription": "Active Pixel Color"}
+        json_schema_extra = {
+            "shortDescription": "Active Pixel Color"
+        }
 
 
 class ConfigThresholdVal(Config):
@@ -139,8 +146,9 @@ class ConfigThresholdVal(Config):
 
     class Config:
         title = "Threshold Value"
-        schema_extra = {"shortDescription": "Cutoff Point"}
-        json_schema_extra = {"shortDescription": "Cutoff Point"}
+        json_schema_extra = {
+            "shortDescription": "Cutoff Point"
+        }
 
 
 class ConfigTypeAutoThresholding(Config):
@@ -248,8 +256,9 @@ class ConfigLocalType(Config):
 
     class Config:
         title = "Type"
-        schema_extra = {"shortDescription": "Adaptive Algorithm"}
-        json_schema_extra = {"shortDescription": "Adaptive Algorithm"}
+        json_schema_extra = {
+            "shortDescription": "Adaptive Algorithm"
+        }
 
 
 class ConfigGlobalType(Config):
@@ -267,8 +276,9 @@ class ConfigGlobalType(Config):
 
     class Config:
         title = "Type"
-        schema_extra = {"shortDescription": "Separation Logic"}
-        json_schema_extra = {"shortDescription": "Separation Logic"}
+        json_schema_extra = {
+            "shortDescription": "Separation Logic"
+        }
 
 
 class ConfigTypeLocalThresholding(Config):
@@ -295,14 +305,18 @@ class ConfigTypeGlobalThresholding(Config):
 
 class ConfigType(Config):
     name: Literal["configType"] = "configType"
-    value: Union[ConfigTypeGlobalThresholding, ConfigTypeLocalThresholding]
+    value: Union[
+        ConfigTypeGlobalThresholding,
+        ConfigTypeLocalThresholding,
+    ]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
     class Config:
         title = "Method"
-        schema_extra = {"shortDescription": "Segmentation Strategy"}
-        json_schema_extra = {"shortDescription": "Segmentation Strategy"}
+        json_schema_extra = {
+            "shortDescription": "Segmentation Strategy"
+        }
 
 
 class ThresholdingInputs(Inputs):
@@ -332,17 +346,30 @@ class ThresholdingRequest(Request):
     configs: ThresholdingConfigs
 
     class Config:
-        schema_extra = {"target": "configs"}
-        json_schema_extra = {"target": "configs"}
+        json_schema_extra = {
+            "target": "configs"
+        }
 
 
 class DualThresholdingRequest(Request):
-    inputs: DualThresholdingInputs
-    configs: ThresholdingConfigs
+    inputs: Optional[DualThresholdingInputs] = None
+    configs: ThresholdingConfigs = ThresholdingConfigs(
+        configType=ConfigType(
+            value=ConfigTypeGlobalThresholding(
+                configEdit=ConfigGlobalType(
+                    value=ConfigTypeBlackWhite(
+                        thresholdVal=ConfigThresholdVal(),
+                        maxVal=ConfigMaxVal()
+                    )
+                )
+            )
+        )
+    )
 
     class Config:
-        schema_extra = {"target": "configs"}
-        json_schema_extra = {"target": "configs"}
+        json_schema_extra = {
+            "target": "configs"
+        }
 
 
 class ThresholdingResponse(Response):
@@ -361,25 +388,37 @@ class ThresholdingExecutor(Config):
 
     class Config:
         title = "Thresholding Executor"
-        schema_extra = {"target": {"value": 0}}
-        json_schema_extra = {"target": {"value": 0}}
+        json_schema_extra = {
+            "target": {
+                "value": 0
+            }
+        }
 
 
 class DualThresholdingExecutor(Config):
     name: Literal["DualThresholding"] = "DualThresholding"
-    value: Union[DualThresholdingRequest, DualThresholdingResponse]
+    value: Union[
+        DualThresholdingRequest,
+        DualThresholdingResponse
+    ] = DualThresholdingRequest()
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
 
     class Config:
         title = "Dual Thresholding Executor"
-        schema_extra = {"target": {"value": 1}}
-        json_schema_extra = {"target": {"value": 1}}
+        json_schema_extra = {
+            "target": {
+                "value": 1
+            }
+        }
 
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
-    value: Union[ThresholdingExecutor, DualThresholdingExecutor]
+    value: Union[
+        ThresholdingExecutor,
+        DualThresholdingExecutor
+    ]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
