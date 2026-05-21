@@ -330,6 +330,10 @@ class ThresholdingConfigs(Configs):
     configType: ConfigType
 
 
+class DualThresholdingConfigs(Configs):
+    configType: ConfigType
+
+
 class ThresholdingOutputs(Outputs):
     outputImage: OutputImage
 
@@ -351,7 +355,7 @@ class ThresholdingRequest(Request):
 
 class DualThresholdingRequest(Request):
     inputs: DualThresholdingInputs
-    configs: ThresholdingConfigs
+    configs: DualThresholdingConfigs
 
     class Config:
         json_schema_extra = {
