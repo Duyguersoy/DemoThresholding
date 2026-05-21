@@ -9,11 +9,11 @@ from sdks.novavision.src.media.image import Image
 from sdks.novavision.src.base.component import Component
 from sdks.novavision.src.helper.executor import Executor
 
-from components.DemoThresholdingg.src.utils.response import build_response
-from components.DemoThresholdingg.src.models.PackageModel import PackageModel
+from components.DemoThresholding.src.utils.response import build_response
+from components.DemoThresholding.src.models.PackageModel import PackageModel
 
 
-class ThresholdingExecutor(Component):
+class Thresholding(Component):
     def __init__(self, request, bootstrap):
         super().__init__(request, bootstrap)
 
@@ -27,6 +27,7 @@ class ThresholdingExecutor(Component):
     def load_parameters(self):
         if self.type == "GlobalThresholding":
             self.global_type = self.request.get_param("configGlobalType") or "black white"
+            self.max_value = int(self.request.get_param("maxvalue") or 255)
 
             if self.global_type in [
                 "black white",
@@ -36,8 +37,6 @@ class ThresholdingExecutor(Component):
                 "blackening inv",
             ]:
                 self.th_value = int(self.request.get_param("thresholdvalue") or 127)
-
-            self.max_value = int(self.request.get_param("maxvalue") or 255)
 
         elif self.type == "LocalThresholding":
             self.local_type = self.request.get_param("configLocalType") or "mean"
@@ -109,7 +108,7 @@ class ThresholdingExecutor(Component):
                     image,
                     0,
                     self.max_value,
-                    cv2.THRESH_OTSU + cv2.THRESH_BINARY
+                    cv2.THRESH_BINARY + cv2.THRESH_OTSU
                 )
 
         elif self.type == "LocalThresholding":
@@ -153,5 +152,5 @@ class ThresholdingExecutor(Component):
         return package_model
 
 
-if "__main__" == __name__:
+if __name__ == "__main__":
     Executor(sys.argv[1]).run()

@@ -1,6 +1,6 @@
 from sdks.novavision.src.helper.package import PackageHelper
 
-from components.DemoThresholdingg.src.models.PackageModel import (
+from components.DemoThresholding.src.models.PackageModel import (
     PackageModel,
     PackageConfigs,
     ConfigExecutor,
@@ -8,44 +8,45 @@ from components.DemoThresholdingg.src.models.PackageModel import (
     ThresholdingExecutor,
     ThresholdingResponse,
     ThresholdingOutputs,
-    OutputImage,
 
-    DemoSecondExecutor,
-    DemoSecondResponse,
-    DemoSecondOutputs,
+    DualThresholdingExecutor,
+    DualThresholdingResponse,
+    DualThresholdingOutputs,
+
+    OutputImage,
     OutputImageSecond,
 )
 
 
 def build_response(context):
     if hasattr(context, "imageSecond"):
-        outputImage = OutputImage(value=context.image)
-        outputImageSecond = OutputImageSecond(value=context.imageSecond)
+        output_image = OutputImage(value=context.image)
+        output_image_second = OutputImageSecond(value=context.imageSecond)
 
-        outputs = DemoSecondOutputs(
-            outputImage=outputImage,
-            outputImageSecond=outputImageSecond
+        outputs = DualThresholdingOutputs(
+            outputImage=output_image,
+            outputImageSecond=output_image_second
         )
 
-        response = DemoSecondResponse(outputs=outputs)
-        selectedExecutor = DemoSecondExecutor(value=response)
+        response = DualThresholdingResponse(outputs=outputs)
+        selected_executor = DualThresholdingExecutor(value=response)
 
     else:
-        outputImage = OutputImage(value=context.image)
+        output_image = OutputImage(value=context.image)
 
         outputs = ThresholdingOutputs(
-            outputImage=outputImage
+            outputImage=output_image
         )
 
         response = ThresholdingResponse(outputs=outputs)
-        selectedExecutor = ThresholdingExecutor(value=response)
+        selected_executor = ThresholdingExecutor(value=response)
 
-    executor = ConfigExecutor(value=selectedExecutor)
-    packageConfigs = PackageConfigs(executor=executor)
+    executor = ConfigExecutor(value=selected_executor)
+    package_configs = PackageConfigs(executor=executor)
 
     package = PackageHelper(
         packageModel=PackageModel,
-        packageConfigs=packageConfigs
+        packageConfigs=package_configs
     )
 
     return package.build_model(context)

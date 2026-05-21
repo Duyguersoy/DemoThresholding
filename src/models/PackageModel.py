@@ -314,11 +314,47 @@ class ConfigType(Config):
         }
 
 
+class ConfigDualBlur(Config):
+    name: Literal["DualBlur"] = "DualBlur"
+    value: Literal["DualBlur"] = "DualBlur"
+    blurSize: ConfigSubBlock
+    type: Literal["string"] = "string"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Dual Blur"
+
+
+class ConfigDualThreshold(Config):
+    name: Literal["DualThreshold"] = "DualThreshold"
+    value: Literal["DualThreshold"] = "DualThreshold"
+    thresholdVal: ConfigThresholdVal
+    maxVal: ConfigMaxVal
+    type: Literal["string"] = "string"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Dual Threshold"
+
+
+class ConfigDualType(Config):
+    name: Literal["configDualType"] = "configDualType"
+    value: Union[ConfigDualBlur, ConfigDualThreshold]
+    type: Literal["object"] = "object"
+    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
+
+    class Config:
+        title = "Dual Method"
+        json_schema_extra = {
+            "shortDescription": "Select dual image processing method"
+        }
+
+
 class ThresholdingInputs(Inputs):
     inputImage: InputImage
 
 
-class DemoSecondInputs(Inputs):
+class DualThresholdingInputs(Inputs):
     inputImage: InputImage
     inputImageSecond: InputImageSecond
 
@@ -327,11 +363,15 @@ class ThresholdingConfigs(Configs):
     configType: ConfigType
 
 
+class DualThresholdingConfigs(Configs):
+    configDualType: ConfigDualType
+
+
 class ThresholdingOutputs(Outputs):
     outputImage: OutputImage
 
 
-class DemoSecondOutputs(Outputs):
+class DualThresholdingOutputs(Outputs):
     outputImage: OutputImage
     outputImageSecond: OutputImageSecond
 
@@ -346,9 +386,9 @@ class ThresholdingRequest(Request):
         }
 
 
-class DemoSecondRequest(Request):
-    inputs: DemoSecondInputs
-    configs: ThresholdingConfigs
+class DualThresholdingRequest(Request):
+    inputs: DualThresholdingInputs
+    configs: DualThresholdingConfigs
 
     class Config:
         json_schema_extra = {
@@ -360,12 +400,12 @@ class ThresholdingResponse(Response):
     outputs: ThresholdingOutputs
 
 
-class DemoSecondResponse(Response):
-    outputs: DemoSecondOutputs
+class DualThresholdingResponse(Response):
+    outputs: DualThresholdingOutputs
 
 
 class ThresholdingExecutor(Config):
-    name: Literal["ThresholdingExecutor"] = "ThresholdingExecutor"
+    name: Literal["Thresholding"] = "Thresholding"
     value: Union[ThresholdingRequest, ThresholdingResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
@@ -379,14 +419,14 @@ class ThresholdingExecutor(Config):
         }
 
 
-class DemoSecondExecutor(Config):
-    name: Literal["DemoSecondExecutor"] = "DemoSecondExecutor"
-    value: Union[DemoSecondRequest, DemoSecondResponse]
+class DualThresholdingExecutor(Config):
+    name: Literal["DualThresholding"] = "DualThresholding"
+    value: Union[DualThresholdingRequest, DualThresholdingResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
 
     class Config:
-        title = "Demo Second Executor"
+        title = "Dual Thresholding Executor"
         json_schema_extra = {
             "target": {
                 "value": 1
@@ -396,7 +436,7 @@ class DemoSecondExecutor(Config):
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
-    value: Union[ThresholdingExecutor, DemoSecondExecutor]
+    value: Union[ThresholdingExecutor, DualThresholdingExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
@@ -411,4 +451,4 @@ class PackageConfigs(Configs):
 class PackageModel(Package):
     configs: PackageConfigs
     type: Literal["component"] = "component"
-    name: Literal["DemoThresholdingg"] = "DemoThresholdingg"
+    name: Literal["DemoThresholding"] = "DemoThresholding"
