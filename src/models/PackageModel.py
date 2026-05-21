@@ -332,6 +332,10 @@ class ThresholdingConfigs(Configs):
     configType: ConfigType
 
 
+class DualThresholdingConfigs(Configs):
+    configType: ConfigType
+
+
 class ThresholdingOutputs(Outputs):
     outputImage: OutputImage
 
@@ -353,7 +357,7 @@ class ThresholdingRequest(Request):
 
 class DualThresholdingRequest(Request):
     inputs: Optional[DualThresholdingInputs] = None
-    configs: ThresholdingConfigs = ThresholdingConfigs(
+    configs: DualThresholdingConfigs = DualThresholdingConfigs(
         configType=ConfigType(
             value=ConfigTypeGlobalThresholding(
                 configEdit=ConfigGlobalType(
