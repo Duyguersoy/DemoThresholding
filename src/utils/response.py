@@ -52,23 +52,4 @@ def build_response(context):
 
 
 def build_dual_response(context):
-    outputImage = OutputImage(value=context.image)
-    outputImageSecond = OutputImageSecond(value=context.imageSecond)
-
-    outputs = DemoSecondOutputs(
-        outputImage=outputImage,
-        outputImageSecond=outputImageSecond
-    )
-
-    response = DemoSecondResponse(outputs=outputs)
-    selectedExecutor = DemoSecondExecutor(value=response)
-
-    executor = ConfigExecutor(value=selectedExecutor)
-    packageConfigs = PackageConfigs(executor=executor)
-
-    package = PackageHelper(
-        packageModel=PackageModel,
-        packageConfigs=packageConfigs
-    )
-
-    return package.build_model(context)
+    return build_response(context)

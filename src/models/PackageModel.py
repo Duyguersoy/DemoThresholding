@@ -15,10 +15,6 @@ from sdks.novavision.src.base.model import (
 )
 
 
-# ============================================================
-# INPUT / OUTPUT PARAMETERS
-# ============================================================
-
 class InputImage(Input):
     name: Literal["inputImage"] = "inputImage"
     value: Union[List[Image], Image]
@@ -91,13 +87,9 @@ class OutputImageSecond(Output):
         title = "Second Output Image"
 
 
-# ============================================================
-# SHARED CONFIG PARAMETERS
-# ============================================================
-
 class ConfigOffSet(Config):
     name: Literal["offset"] = "offset"
-    value: int = Field(default=0, ge=-15.0, le=15.0)
+    value: int = Field(default=0, ge=-15, le=15)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     placeHolder: Literal["integers between [-15, 15]"] = "integers between [-15, 15]"
@@ -111,18 +103,16 @@ class ConfigOffSet(Config):
 
 class ConfigSubBlock(Config):
     name: Literal["subblock"] = "subblock"
-    value: int = Field(default=11, ge=3.0, le=191.0)
+    value: int = Field(default=11, ge=3, le=191)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     placeHolder: Literal["odd integers between [3, 191]"] = "odd integers between [3, 191]"
 
     @validator("value")
     def validate_odd_integer_range(cls, value):
-        if value % 2:
-            if value < 3 or value > 191:
-                raise ValueError("Invalid value: must be an odd integer between 3 and 191 (inclusive)")
-            return value
-        raise ValueError("Invalid value: must be an odd integer between 3 and 191 (inclusive)")
+        if value % 2 == 0 or value < 3 or value > 191:
+            raise ValueError("Invalid value: must be an odd integer between 3 and 191")
+        return value
 
     class Config:
         title = "SubBlock Size"
@@ -133,7 +123,7 @@ class ConfigSubBlock(Config):
 
 class ConfigMaxVal(Config):
     name: Literal["maxvalue"] = "maxvalue"
-    value: int = Field(default=255, ge=0, le=255.0)
+    value: int = Field(default=255, ge=0, le=255)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     placeHolder: Literal["integers between [0, 255]"] = "integers between [0, 255]"
@@ -147,7 +137,7 @@ class ConfigMaxVal(Config):
 
 class ConfigThresholdVal(Config):
     name: Literal["thresholdvalue"] = "thresholdvalue"
-    value: int = Field(default=127, ge=0, le=255.0)
+    value: int = Field(default=127, ge=0, le=255)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     placeHolder: Literal["integers between [0, 255]"] = "integers between [0, 255]"
@@ -158,10 +148,6 @@ class ConfigThresholdVal(Config):
             "shortDescription": "Cutoff Point"
         }
 
-
-# ============================================================
-# THRESHOLDING CONFIG OPTIONS
-# ============================================================
 
 class ConfigTypeAutoThresholding(Config):
     name: Literal["auto thresholding"] = "auto thresholding"
@@ -328,52 +314,13 @@ class ConfigType(Config):
         }
 
 
-# ============================================================
-# DUAL EXECUTOR CONFIG OPTIONS
-# ============================================================
-
-class ConfigDualBlur(Config):
-    name: Literal["DualBlur"] = "DualBlur"
-    blurSize: ConfigSubBlock
-    value: Literal["DualBlur"] = "DualBlur"
-    type: Literal["string"] = "string"
-    field: Literal["option"] = "option"
-
-    class Config:
-        title = "Dual Blur"
-
-
-class ConfigDualThreshold(Config):
-    name: Literal["DualThreshold"] = "DualThreshold"
-    thresholdVal: ConfigThresholdVal
-    maxVal: ConfigMaxVal
-    value: Literal["DualThreshold"] = "DualThreshold"
-    type: Literal["string"] = "string"
-    field: Literal["option"] = "option"
-
-    class Config:
-        title = "Dual Threshold"
-
-
-class ConfigDualType(Config):
-    name: Literal["configDualType"] = "configDualType"
-    value: Union[ConfigDualBlur, ConfigDualThreshold]
-    type: Literal["object"] = "object"
-    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-
-    class Config:
-        title = "Dual Method"
-        json_schema_extra = {
-            "shortDescription": "Select dual image processing method"
-        }
-
-
-# ============================================================
-# EXECUTOR 1: 1 INPUT, 1 OUTPUT
-# ============================================================
-
 class ThresholdingInputs(Inputs):
     inputImage: InputImage
+
+
+class DemoSecondInputs(Inputs):
+    inputImage: InputImage
+    inputImageSecond: InputImageSecond
 
 
 class ThresholdingConfigs(Configs):
@@ -382,6 +329,11 @@ class ThresholdingConfigs(Configs):
 
 class ThresholdingOutputs(Outputs):
     outputImage: OutputImage
+
+
+class DemoSecondOutputs(Outputs):
+    outputImage: OutputImage
+    outputImageSecond: OutputImageSecond
 
 
 class ThresholdingRequest(Request):
@@ -394,12 +346,26 @@ class ThresholdingRequest(Request):
         }
 
 
+class DemoSecondRequest(Request):
+    inputs: DemoSecondInputs
+    configs: ThresholdingConfigs
+
+    class Config:
+        json_schema_extra = {
+            "target": "configs"
+        }
+
+
 class ThresholdingResponse(Response):
     outputs: ThresholdingOutputs
 
 
+class DemoSecondResponse(Response):
+    outputs: DemoSecondOutputs
+
+
 class ThresholdingExecutor(Config):
-    name: Literal["Thresholding"] = "Thresholding"
+    name: Literal["ThresholdingExecutor"] = "ThresholdingExecutor"
     value: Union[ThresholdingRequest, ThresholdingResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
@@ -413,46 +379,14 @@ class ThresholdingExecutor(Config):
         }
 
 
-# ============================================================
-# EXECUTOR 2: 2 INPUTS, 2 OUTPUTS
-# ============================================================
-
-class DualThresholdingInputs(Inputs):
-    inputImage: InputImage
-    inputImageSecond: InputImageSecond
-
-
-class DualThresholdingConfigs(Configs):
-    configDualType: ConfigDualType
-
-
-class DualThresholdingOutputs(Outputs):
-    outputImage: OutputImage
-    outputImageSecond: OutputImageSecond
-
-
-class DualThresholdingRequest(Request):
-    inputs: DualThresholdingInputs
-    configs: DualThresholdingConfigs
-
-    class Config:
-        json_schema_extra = {
-            "target": "configs"
-        }
-
-
-class DualThresholdingResponse(Response):
-    outputs: DualThresholdingOutputs
-
-
-class DualThresholdingExecutor(Config):
-    name: Literal["DualThresholding"] = "DualThresholding"
-    value: Union[DualThresholdingRequest, DualThresholdingResponse]
+class DemoSecondExecutor(Config):
+    name: Literal["DemoSecondExecutor"] = "DemoSecondExecutor"
+    value: Union[DemoSecondRequest, DemoSecondResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
 
     class Config:
-        title = "Dual Thresholding Executor"
+        title = "Demo Second Executor"
         json_schema_extra = {
             "target": {
                 "value": 1
@@ -460,13 +394,9 @@ class DualThresholdingExecutor(Config):
         }
 
 
-# ============================================================
-# PACKAGE EXECUTOR SELECTOR
-# ============================================================
-
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
-    value: Union[ThresholdingExecutor, DualThresholdingExecutor]
+    value: Union[ThresholdingExecutor, DemoSecondExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
@@ -481,4 +411,4 @@ class PackageConfigs(Configs):
 class PackageModel(Package):
     configs: PackageConfigs
     type: Literal["component"] = "component"
-    name: Literal["DemoThresholding"] = "DemoThresholding"
+    name: Literal["DemoThresholdingg"] = "DemoThresholdingg"
