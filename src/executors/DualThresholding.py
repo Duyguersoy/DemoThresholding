@@ -9,7 +9,7 @@ from sdks.novavision.src.media.image import Image
 from sdks.novavision.src.base.component import Component
 from sdks.novavision.src.helper.executor import Executor
 
-from components.DemoThresholding.src.utils.response import build_dual_response
+from components.DemoThresholding.src.utils.response import build_response
 from components.DemoThresholding.src.models.PackageModel import PackageModel
 
 
@@ -19,7 +19,7 @@ class DualThresholding(Component):
 
         self.request.model = PackageModel(**self.request.data)
 
-        self.type = self.request.get_param("configDualType")
+        self.type = self.request.get_param("configType") or "GlobalThresholding"
 
         self.image_input = self.request.get_param("inputImage")
         self.image_second_input = self.request.get_param("inputImageSecond")
@@ -27,45 +27,122 @@ class DualThresholding(Component):
         self.load_parameters()
 
     def load_parameters(self):
-        if self.type == "DualBlur":
-            self.blur_size = int(self.request.get_param("subblock") or 11)
+        if self.type == "GlobalThresholding":
+            self.global_type = self.request.get_param("configGlobalType") or "black white"
 
-        elif self.type == "DualThreshold":
-            self.threshold_value = int(self.request.get_param("thresholdvalue") or 127)
+            if self.global_type in [
+                "black white",
+                "black white inv",
+                "color like grey",
+                "blackening",
+                "blackening inv"
+            ]:
+                self.th_value = int(self.request.get_param("thresholdvalue") or 127)
+
             self.max_value = int(self.request.get_param("maxvalue") or 255)
+
+        elif self.type == "LocalThresholding":
+            self.local_type = self.request.get_param("configLocalType") or "mean"
+            self.max_value = int(self.request.get_param("maxvalue") or 255)
+            self.sub_block = int(self.request.get_param("subblock") or 11)
+            self.off_set = int(self.request.get_param("offset") or 0)
+
+            if self.sub_block < 3:
+                self.sub_block = 3
+
+            if self.sub_block % 2 == 0:
+                self.sub_block += 1
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
         return {}
 
-    def process(self, image):
+    def thresholding(self, image):
         image = np.asarray(image).astype(np.uint8)
 
-        if self.type == "DualBlur":
-            k = int(self.blur_size)
+        if len(image.shape) == 3:
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-            if k < 3:
-                k = 3
+        if self.type == "GlobalThresholding":
+            if self.global_type == "black white":
+                _, th_image = cv2.threshold(
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_BINARY
+                )
 
-            if k % 2 == 0:
-                k += 1
+            elif self.global_type == "black white inv":
+                _, th_image = cv2.threshold(
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_BINARY_INV
+                )
 
-            return cv2.GaussianBlur(image, (k, k), 0)
+            elif self.global_type == "color like grey":
+                _, th_image = cv2.threshold(
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_TRUNC
+                )
 
-        elif self.type == "DualThreshold":
-            if len(image.shape) == 3:
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            elif self.global_type == "blackening":
+                _, th_image = cv2.threshold(
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_TOZERO
+                )
 
-            _, th_image = cv2.threshold(
-                image,
-                self.threshold_value,
-                self.max_value,
-                cv2.THRESH_BINARY
-            )
+            elif self.global_type == "blackening inv":
+                _, th_image = cv2.threshold(
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_TOZERO_INV
+                )
 
-            return th_image
+            elif self.global_type == "auto thresholding":
+                _, th_image = cv2.threshold(
+                    image,
+                    0,
+                    self.max_value,
+                    cv2.THRESH_OTSU + cv2.THRESH_BINARY
+                )
 
-        return image
+            else:
+                th_image = image
+
+        elif self.type == "LocalThresholding":
+            if self.local_type == "mean":
+                th_image = cv2.adaptiveThreshold(
+                    image,
+                    self.max_value,
+                    cv2.ADAPTIVE_THRESH_MEAN_C,
+                    cv2.THRESH_BINARY,
+                    self.sub_block,
+                    self.off_set
+                )
+
+            elif self.local_type == "gaussian":
+                th_image = cv2.adaptiveThreshold(
+                    image,
+                    self.max_value,
+                    cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                    cv2.THRESH_BINARY,
+                    self.sub_block,
+                    self.off_set
+                )
+
+            else:
+                th_image = image
+
+        else:
+            th_image = image
+
+        return th_image
 
     def run(self):
         img = Image.get_frame(
@@ -78,22 +155,22 @@ class DualThresholding(Component):
             redis_db=self.redis_db
         )
 
-        img.value = self.process(img.value)
-        img_second.value = self.process(img_second.value)
+        img.value = self.thresholding(img.value)
+        img_second.value = self.thresholding(img_second.value)
 
         self.image = Image.set_frame(
-            img=img.value,
+            img=img,
             package_uID=self.uID,
             redis_db=self.redis_db
         )
 
         self.imageSecond = Image.set_frame(
-            img=img_second.value,
+            img=img_second,
             package_uID=self.uID,
             redis_db=self.redis_db
         )
 
-        package_model = build_dual_response(context=self)
+        package_model = build_response(context=self)
         return package_model
 
 

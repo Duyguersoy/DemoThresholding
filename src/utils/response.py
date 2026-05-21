@@ -1,6 +1,6 @@
 from sdks.novavision.src.helper.package import PackageHelper
 
-from components.DemoThresholding.src.models.PackageModel import (
+from components.DemoThresholdingg.src.models.PackageModel import (
     PackageModel,
     PackageConfigs,
     ConfigExecutor,
@@ -8,57 +8,67 @@ from components.DemoThresholding.src.models.PackageModel import (
     ThresholdingExecutor,
     ThresholdingResponse,
     ThresholdingOutputs,
-
-    DualThresholdingExecutor,
-    DualThresholdingResponse,
-    DualThresholdingOutputs,
-
     OutputImage,
+
+    DemoSecondExecutor,
+    DemoSecondResponse,
+    DemoSecondOutputs,
     OutputImageSecond,
 )
 
 
 def build_response(context):
-    output_image = OutputImage(value=context.image)
+    if hasattr(context, "imageSecond"):
+        outputImage = OutputImage(value=context.image)
+        outputImageSecond = OutputImageSecond(value=context.imageSecond)
 
-    outputs = ThresholdingOutputs(
-        outputImage=output_image
-    )
+        outputs = DemoSecondOutputs(
+            outputImage=outputImage,
+            outputImageSecond=outputImageSecond
+        )
 
-    response = ThresholdingResponse(outputs=outputs)
-    selected_executor = ThresholdingExecutor(value=response)
+        response = DemoSecondResponse(outputs=outputs)
+        selectedExecutor = DemoSecondExecutor(value=response)
 
-    executor = ConfigExecutor(value=selected_executor)
-    package_configs = PackageConfigs(executor=executor)
+    else:
+        outputImage = OutputImage(value=context.image)
+
+        outputs = ThresholdingOutputs(
+            outputImage=outputImage
+        )
+
+        response = ThresholdingResponse(outputs=outputs)
+        selectedExecutor = ThresholdingExecutor(value=response)
+
+    executor = ConfigExecutor(value=selectedExecutor)
+    packageConfigs = PackageConfigs(executor=executor)
 
     package = PackageHelper(
         packageModel=PackageModel,
-        packageConfigs=package_configs
+        packageConfigs=packageConfigs
     )
 
-    package_model = package.build_model(context)
-    return package_model
+    return package.build_model(context)
 
 
 def build_dual_response(context):
-    output_image = OutputImage(value=context.image)
-    output_image_second = OutputImageSecond(value=context.imageSecond)
+    outputImage = OutputImage(value=context.image)
+    outputImageSecond = OutputImageSecond(value=context.imageSecond)
 
-    outputs = DualThresholdingOutputs(
-        outputImage=output_image,
-        outputImageSecond=output_image_second
+    outputs = DemoSecondOutputs(
+        outputImage=outputImage,
+        outputImageSecond=outputImageSecond
     )
 
-    response = DualThresholdingResponse(outputs=outputs)
-    selected_executor = DualThresholdingExecutor(value=response)
+    response = DemoSecondResponse(outputs=outputs)
+    selectedExecutor = DemoSecondExecutor(value=response)
 
-    executor = ConfigExecutor(value=selected_executor)
-    package_configs = PackageConfigs(executor=executor)
+    executor = ConfigExecutor(value=selectedExecutor)
+    packageConfigs = PackageConfigs(executor=executor)
 
     package = PackageHelper(
         packageModel=PackageModel,
-        packageConfigs=package_configs
+        packageConfigs=packageConfigs
     )
 
-    package_model = package.build_model(context)
-    return package_model
+    return package.build_model(context)
