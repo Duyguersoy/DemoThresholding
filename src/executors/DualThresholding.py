@@ -28,7 +28,11 @@ class DualThresholding(Component):
 
     def load_parameters(self):
         if self.type == "DualBlur":
-            self.blur_size = int(self.request.get_param("subblock") or 11)
+            self.blur_size = int(
+                self.request.get_param("subblock")
+                or self.request.get_param("blurSize")
+                or 11
+            )
 
         elif self.type == "DualThreshold":
             self.threshold_value = int(self.request.get_param("thresholdvalue") or 127)
