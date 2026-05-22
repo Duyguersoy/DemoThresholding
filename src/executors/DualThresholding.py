@@ -13,7 +13,7 @@ from components.DemoThresholding.src.utils.response import build_response
 from components.DemoThresholding.src.models.PackageModel import PackageModel
 
 
-class DualThresholdingExecutor(Component):
+class DualThresholding(Component):
     def __init__(self, request, bootstrap):
         super().__init__(request, bootstrap)
 
@@ -111,7 +111,7 @@ class DualThresholdingExecutor(Component):
                     image,
                     0,
                     self.max_value,
-                    cv2.THRESH_OTSU + cv2.THRESH_BINARY
+                    cv2.THRESH_BINARY + cv2.THRESH_OTSU
                 )
 
         elif self.type == "LocalThresholding":
@@ -169,5 +169,3 @@ class DualThresholdingExecutor(Component):
 
 if __name__ == "__main__":
     Executor(sys.argv[1]).run()
-    
-DualThresholding = DualThresholdingExecutor

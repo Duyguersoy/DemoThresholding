@@ -19,17 +19,6 @@ from components.DemoThresholding.src.models.PackageModel import (
 
 
 def build_response(context):
-    """
-    Tekli ve ikili executor response'unu otomatik oluşturur.
-
-    Tekli Thresholding için:
-        context.image
-
-    DualThresholding için:
-        context.image
-        context.imageSecond
-    """
-
     if hasattr(context, "imageSecond"):
         output_image = OutputImage(value=context.image)
         output_image_second = OutputImageSecond(value=context.imageSecond)
@@ -64,8 +53,4 @@ def build_response(context):
 
 
 def build_dual_response(context):
-    """
-    Eski import bozulmasın diye bırakıldı.
-    Asıl response mantığı build_response içindedir.
-    """
     return build_response(context)

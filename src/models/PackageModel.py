@@ -379,7 +379,7 @@ class ThresholdingExecutor(Config):
 
 
 class DualThresholdingExecutor(Config):
-    name: Literal["DualThresholdingExecutor"] = "DualThresholdingExecutor"
+    name: Literal["DualThresholding"] = "DualThresholding"
     value: Union[DualThresholdingRequest, DualThresholdingResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
