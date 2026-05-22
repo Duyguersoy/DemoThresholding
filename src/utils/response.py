@@ -8,28 +8,37 @@ from components.DemoThresholding.src.models.PackageModel import (
     ThresholdingExecutor,
     ThresholdingResponse,
     ThresholdingOutputs,
-
-    DemoSecondExecutor,
-    DemoSecondResponse,
-    DemoSecondOutputs,
-
     OutputImage,
-    OutputImageSecond,
+
+    DualThresholdingExecutor,
+    DualThresholdingResponse,
+    DualThresholdingOutputs,
+    OutputImageA,
+    OutputImageB,
 )
 
 
 def build_response(context):
-    if hasattr(context, "imageSecond"):
-        output_image = OutputImage(value=context.image)
-        output_image_second = OutputImageSecond(value=context.imageSecond)
+    """
+    Tekli veya ikili executor response'unu otomatik oluşturur.
+    Thresholding için: context.image
+    DualThresholding için: context.output_a, context.output_b
+    """
 
-        outputs = DemoSecondOutputs(
-            outputImage=output_image,
-            outputImageSecond=output_image_second
+    if hasattr(context, "output_a") and hasattr(context, "output_b"):
+        output_image_a = OutputImageA(value=context.output_a)
+        output_image_b = OutputImageB(value=context.output_b)
+
+        outputs = DualThresholdingOutputs(
+            outputImageA=output_image_a,
+            outputImageB=output_image_b
         )
 
-        response = DemoSecondResponse(outputs=outputs)
-        selected_executor = DemoSecondExecutor(value=response)
+        response = DualThresholdingResponse(outputs=outputs)
+
+        selected_executor = DualThresholdingExecutor(
+            value=response
+        )
 
     else:
         output_image = OutputImage(value=context.image)
@@ -39,18 +48,31 @@ def build_response(context):
         )
 
         response = ThresholdingResponse(outputs=outputs)
-        selected_executor = ThresholdingExecutor(value=response)
 
-    executor = ConfigExecutor(value=selected_executor)
-    package_configs = PackageConfigs(executor=executor)
+        selected_executor = ThresholdingExecutor(
+            value=response
+        )
+
+    executor = ConfigExecutor(
+        value=selected_executor
+    )
+
+    package_configs = PackageConfigs(
+        executor=executor
+    )
 
     package = PackageHelper(
         packageModel=PackageModel,
         packageConfigs=package_configs
     )
 
-    return package.build_model(context)
+    package_model = package.build_model(context)
+    return package_model
 
 
 def build_dual_response(context):
+    """
+    DualThresholding.py eski import yapısıyla uyumlu kalsın diye bırakıldı.
+    Asıl işi build_response yapıyor.
+    """
     return build_response(context)

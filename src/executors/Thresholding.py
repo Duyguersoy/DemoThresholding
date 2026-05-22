@@ -19,36 +19,30 @@ class Thresholding(Component):
 
         self.request.model = PackageModel(**self.request.data)
 
-        self.type = self.request.get_param("configType") or "GlobalThresholding"
+        self.type = self.request.get_param("configType")
         self.images = self.request.get_param("inputImage")
 
         self.load_parameters()
 
     def load_parameters(self):
         if self.type == "GlobalThresholding":
-            self.global_type = self.request.get_param("configGlobalType") or "black white"
-            self.max_value = int(self.request.get_param("maxvalue") or 255)
+            self.global_type = self.request.get_param("configGlobalType")
+            self.max_value = int(self.request.get_param("maxvalue"))
 
             if self.global_type in [
                 "black white",
                 "black white inv",
                 "color like grey",
                 "blackening",
-                "blackening inv",
+                "blackening inv"
             ]:
-                self.th_value = int(self.request.get_param("thresholdvalue") or 127)
+                self.th_value = int(self.request.get_param("thresholdvalue"))
 
         elif self.type == "LocalThresholding":
-            self.local_type = self.request.get_param("configLocalType") or "mean"
-            self.max_value = int(self.request.get_param("maxvalue") or 255)
-            self.sub_block = int(self.request.get_param("subblock") or 11)
-            self.off_set = int(self.request.get_param("offset") or 0)
-
-            if self.sub_block < 3:
-                self.sub_block = 3
-
-            if self.sub_block % 2 == 0:
-                self.sub_block += 1
+            self.local_type = self.request.get_param("configLocalType")
+            self.max_value = int(self.request.get_param("maxvalue"))
+            self.sub_block = int(self.request.get_param("subblock"))
+            self.off_set = int(self.request.get_param("offset"))
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
@@ -112,6 +106,12 @@ class Thresholding(Component):
                 )
 
         elif self.type == "LocalThresholding":
+            if self.sub_block < 3:
+                self.sub_block = 3
+
+            if self.sub_block % 2 == 0:
+                self.sub_block += 1
+
             if self.local_type == "mean":
                 th_image = cv2.adaptiveThreshold(
                     image,
@@ -135,10 +135,7 @@ class Thresholding(Component):
         return th_image
 
     def run(self):
-        img = Image.get_frame(
-            img=self.images,
-            redis_db=self.redis_db
-        )
+        img = Image.get_frame(img=self.images, redis_db=self.redis_db)
 
         img.value = self.thresholding(img.value)
 
@@ -148,8 +145,8 @@ class Thresholding(Component):
             redis_db=self.redis_db
         )
 
-        package_model = build_response(context=self)
-        return package_model
+        packageModel = build_response(context=self)
+        return packageModel
 
 
 if __name__ == "__main__":
