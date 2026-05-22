@@ -13,7 +13,7 @@ from components.DemoThresholding.src.utils.response import build_response
 from components.DemoThresholding.src.models.PackageModel import PackageModel
 
 
-class DualThresholding(Component):
+class DemoSecondExecutor(Component):
     def __init__(self, request, bootstrap):
         super().__init__(request, bootstrap)
 
@@ -29,6 +29,7 @@ class DualThresholding(Component):
     def load_parameters(self):
         if self.type == "GlobalThresholding":
             self.global_type = self.request.get_param("configGlobalType") or "black white"
+            self.max_value = int(self.request.get_param("maxvalue") or 255)
 
             if self.global_type in [
                 "black white",
@@ -38,8 +39,6 @@ class DualThresholding(Component):
                 "blackening inv",
             ]:
                 self.th_value = int(self.request.get_param("thresholdvalue") or 127)
-
-            self.max_value = int(self.request.get_param("maxvalue") or 255)
 
         elif self.type == "LocalThresholding":
             self.local_type = self.request.get_param("configLocalType") or "mean"
