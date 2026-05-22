@@ -1,24 +1,32 @@
 from pydantic import Field, validator
 from typing import List, Union, Literal
+
 from sdks.novavision.src.base.model import (
-    Package, Image, Inputs, Configs, Outputs,
-    Response, Request, Output, Input, Config
+    Package,
+    Image,
+    Inputs,
+    Configs,
+    Outputs,
+    Response,
+    Request,
+    Output,
+    Input,
+    Config,
 )
+
+try:
+    from sdks.novavision.src.base.model import Images
+except ImportError:
+    Images = Image
+
+
+ImageValue = Union[Images, Image, List[Image]]
 
 
 class InputImage(Input):
     name: Literal["inputImage"] = "inputImage"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
+    value: ImageValue
+    type: Literal["Images"] = "Images"
 
     class Config:
         title = "Image"
@@ -26,17 +34,8 @@ class InputImage(Input):
 
 class InputImageA(Input):
     name: Literal["inputImageA"] = "inputImageA"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
+    value: ImageValue
+    type: Literal["Images"] = "Images"
 
     class Config:
         title = "Image A"
@@ -44,17 +43,8 @@ class InputImageA(Input):
 
 class InputImageB(Input):
     name: Literal["inputImageB"] = "inputImageB"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
+    value: ImageValue
+    type: Literal["Images"] = "Images"
 
     class Config:
         title = "Image B"
@@ -62,17 +52,8 @@ class InputImageB(Input):
 
 class OutputImage(Output):
     name: Literal["outputImage"] = "outputImage"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
+    value: ImageValue
+    type: Literal["Images"] = "Images"
 
     class Config:
         title = "Image"
@@ -80,17 +61,8 @@ class OutputImage(Output):
 
 class OutputImageA(Output):
     name: Literal["outputImageA"] = "outputImageA"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
+    value: ImageValue
+    type: Literal["Images"] = "Images"
 
     class Config:
         title = "Output Image A"
@@ -98,17 +70,8 @@ class OutputImageA(Output):
 
 class OutputImageB(Output):
     name: Literal["outputImageB"] = "outputImageB"
-    value: Union[List[Image], Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get("value")
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-        return "object"
+    value: ImageValue
+    type: Literal["Images"] = "Images"
 
     class Config:
         title = "Output Image B"
@@ -129,6 +92,12 @@ class ConfigOffSet(Config):
 
 
 class ConfigSubBlock(Config):
+    name: Literal["subblock"] = "subblock"
+    value: int = Field(default=11, ge=3, le=191)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+    placeHolder: Literal["odd integers between [3, 191]"] = "odd integers between [3, 191]"
+
     @validator("value")
     def validate_odd_integer_range(cls, value):
         if value % 2 == 0:
@@ -136,12 +105,6 @@ class ConfigSubBlock(Config):
         if value < 3 or value > 191:
             raise ValueError("Invalid value: must be an odd integer between 3 and 191")
         return value
-
-    name: Literal["subblock"] = "subblock"
-    value: int = Field(default=11, ge=3, le=191)
-    type: Literal["number"] = "number"
-    field: Literal["textInput"] = "textInput"
-    placeHolder: Literal["odd integers between [3, 191]"] = "odd integers between [3, 191]"
 
     class Config:
         title = "SubBlock Size"
@@ -277,8 +240,8 @@ class ConfigGaussian(Config):
 
 class ConfigDualBlur(Config):
     name: Literal["DualBlur"] = "DualBlur"
-    value: Literal["DualBlur"] = "DualBlur"
     blurSize: ConfigSubBlock
+    value: Literal["DualBlur"] = "DualBlur"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
 
@@ -288,9 +251,9 @@ class ConfigDualBlur(Config):
 
 class ConfigDualThreshold(Config):
     name: Literal["DualThreshold"] = "DualThreshold"
-    value: Literal["DualThreshold"] = "DualThreshold"
     thresholdVal: ConfigThresholdVal
     maxVal: ConfigMaxVal
+    value: Literal["DualThreshold"] = "DualThreshold"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
 
@@ -332,7 +295,7 @@ class ConfigGlobalType(Config):
         ConfigTypeColorLikeGrey,
         ConfigTypeBlackening,
         ConfigTypeBlackeningInv,
-        ConfigTypeAutoThresholding
+        ConfigTypeAutoThresholding,
     ]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"

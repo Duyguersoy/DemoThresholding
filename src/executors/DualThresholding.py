@@ -52,7 +52,7 @@ class DualThresholding(Component):
 
             return cv2.GaussianBlur(image, (k, k), 0)
 
-        elif self.type == "DualThreshold":
+        if self.type == "DualThreshold":
             if len(image.shape) == 3:
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -68,8 +68,15 @@ class DualThresholding(Component):
         return image
 
     def run(self):
-        img_a = Image.get_frame(img=self.image_a, redis_db=self.redis_db)
-        img_b = Image.get_frame(img=self.image_b, redis_db=self.redis_db)
+        img_a = Image.get_frame(
+            img=self.image_a,
+            redis_db=self.redis_db
+        )
+
+        img_b = Image.get_frame(
+            img=self.image_b,
+            redis_db=self.redis_db
+        )
 
         img_a.value = self.process(img_a.value)
         img_b.value = self.process(img_b.value)
@@ -86,8 +93,7 @@ class DualThresholding(Component):
             redis_db=self.redis_db
         )
 
-        packageModel = build_dual_response(context=self)
-        return packageModel
+        return build_dual_response(context=self)
 
 
 if __name__ == "__main__":
