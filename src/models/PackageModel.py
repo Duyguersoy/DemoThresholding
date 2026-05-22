@@ -104,8 +104,7 @@ class ConfigSubBlock(Config):
             if value < 3 or value > 191:
                 raise ValueError("Invalid value: must be an odd integer between 3 and 191")
             return value
-        else:
-            raise ValueError("Invalid value: must be an odd integer between 3 and 191")
+        raise ValueError("Invalid value: must be an odd integer between 3 and 191")
 
     name: Literal["subblock"] = "subblock"
     value: int = Field(default=11, ge=3.0, le=191.0)
@@ -379,7 +378,7 @@ class ThresholdingExecutor(Config):
 
 
 class DualThresholdingExecutor(Config):
-    name: Literal["DualThresholding"] = "DualThresholding"
+    name: Literal["DualThresholdingExecutor"] = "DualThresholdingExecutor"
     value: Union[DualThresholdingRequest, DualThresholdingResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
