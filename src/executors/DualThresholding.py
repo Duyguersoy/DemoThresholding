@@ -13,7 +13,7 @@ from components.DemoThresholding.src.utils.response import build_response
 from components.DemoThresholding.src.models.PackageModel import PackageModel
 
 
-class DualThresholding(Component):
+class DualThresholdingExecutor(Component):
     def __init__(self, request, bootstrap):
         super().__init__(request, bootstrap)
 
@@ -169,3 +169,5 @@ class DualThresholding(Component):
 
 if __name__ == "__main__":
     Executor(sys.argv[1]).run()
+    
+DualThresholding = DualThresholdingExecutor
