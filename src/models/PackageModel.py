@@ -394,25 +394,7 @@ class DualThresholdingExecutor(Config):
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
-
-    value: Union[ThresholdingExecutor, DualThresholdingExecutor] = ThresholdingExecutor(
-        value=ThresholdingRequest(
-            inputs=None,
-            configs=ThresholdingConfigs(
-                configType=ConfigType(
-                    value=ConfigTypeGlobalThresholding(
-                        configEdit=ConfigGlobalType(
-                            value=ConfigTypeBlackWhite(
-                                thresholdVal=ConfigThresholdVal(),
-                                maxVal=ConfigMaxVal()
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    )
-
+    value: Union[ThresholdingExecutor, DualThresholdingExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
