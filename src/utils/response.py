@@ -19,14 +19,38 @@ from components.DemoThresholding.src.models.PackageModel import (
 
 
 def build_response(context):
-    output_image = OutputImage(value=context.image)
+    """
+    Tekli ve ikili executor response'unu otomatik oluşturur.
 
-    outputs = ThresholdingOutputs(
-        outputImage=output_image
-    )
+    Tekli Thresholding için:
+        context.image
 
-    response = ThresholdingResponse(outputs=outputs)
-    selected_executor = ThresholdingExecutor(value=response)
+    DualThresholding için:
+        context.image
+        context.imageSecond
+    """
+
+    if hasattr(context, "imageSecond"):
+        output_image = OutputImage(value=context.image)
+        output_image_second = OutputImageSecond(value=context.imageSecond)
+
+        outputs = DualThresholdingOutputs(
+            outputImage=output_image,
+            outputImageSecond=output_image_second
+        )
+
+        response = DualThresholdingResponse(outputs=outputs)
+        selected_executor = DualThresholdingExecutor(value=response)
+
+    else:
+        output_image = OutputImage(value=context.image)
+
+        outputs = ThresholdingOutputs(
+            outputImage=output_image
+        )
+
+        response = ThresholdingResponse(outputs=outputs)
+        selected_executor = ThresholdingExecutor(value=response)
 
     executor = ConfigExecutor(value=selected_executor)
     package_configs = PackageConfigs(executor=executor)
@@ -40,23 +64,8 @@ def build_response(context):
 
 
 def build_dual_response(context):
-    output_image = OutputImage(value=context.image)
-    output_image_second = OutputImageSecond(value=context.imageSecond)
-
-    outputs = DualThresholdingOutputs(
-        outputImage=output_image,
-        outputImageSecond=output_image_second
-    )
-
-    response = DualThresholdingResponse(outputs=outputs)
-    selected_executor = DualThresholdingExecutor(value=response)
-
-    executor = ConfigExecutor(value=selected_executor)
-    package_configs = PackageConfigs(executor=executor)
-
-    package = PackageHelper(
-        packageModel=PackageModel,
-        packageConfigs=package_configs
-    )
-
-    return package.build_model(context)
+    """
+    Eski import bozulmasın diye bırakıldı.
+    Asıl response mantığı build_response içindedir.
+    """
+    return build_response(context)

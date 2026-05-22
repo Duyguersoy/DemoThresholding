@@ -9,7 +9,7 @@ from sdks.novavision.src.media.image import Image
 from sdks.novavision.src.base.component import Component
 from sdks.novavision.src.helper.executor import Executor
 
-from components.DemoThresholding.src.utils.response import build_dual_response
+from components.DemoThresholding.src.utils.response import build_response
 from components.DemoThresholding.src.models.PackageModel import PackageModel
 
 
@@ -21,8 +21,8 @@ class DualThresholding(Component):
 
         self.type = self.request.get_param("configType") or "GlobalThresholding"
 
-        self.image_input = self.request.get_param("inputImage")
-        self.image_second_input = self.request.get_param("inputImageSecond")
+        self.images = self.request.get_param("inputImage")
+        self.second_images = self.request.get_param("inputImageSecond")
 
         self.load_parameters()
 
@@ -67,22 +67,52 @@ class DualThresholding(Component):
 
         if self.type == "GlobalThresholding":
             if self.global_type == "black white":
-                _, th_image = cv2.threshold(image, self.th_value, self.max_value, cv2.THRESH_BINARY)
+                _, th_image = cv2.threshold(
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_BINARY
+                )
 
             elif self.global_type == "black white inv":
-                _, th_image = cv2.threshold(image, self.th_value, self.max_value, cv2.THRESH_BINARY_INV)
+                _, th_image = cv2.threshold(
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_BINARY_INV
+                )
 
             elif self.global_type == "color like grey":
-                _, th_image = cv2.threshold(image, self.th_value, self.max_value, cv2.THRESH_TRUNC)
+                _, th_image = cv2.threshold(
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_TRUNC
+                )
 
             elif self.global_type == "blackening":
-                _, th_image = cv2.threshold(image, self.th_value, self.max_value, cv2.THRESH_TOZERO)
+                _, th_image = cv2.threshold(
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_TOZERO
+                )
 
             elif self.global_type == "blackening inv":
-                _, th_image = cv2.threshold(image, self.th_value, self.max_value, cv2.THRESH_TOZERO_INV)
+                _, th_image = cv2.threshold(
+                    image,
+                    self.th_value,
+                    self.max_value,
+                    cv2.THRESH_TOZERO_INV
+                )
 
             elif self.global_type == "auto thresholding":
-                _, th_image = cv2.threshold(image, 0, self.max_value, cv2.THRESH_OTSU + cv2.THRESH_BINARY)
+                _, th_image = cv2.threshold(
+                    image,
+                    0,
+                    self.max_value,
+                    cv2.THRESH_OTSU + cv2.THRESH_BINARY
+                )
 
         elif self.type == "LocalThresholding":
             if self.local_type == "mean":
@@ -109,12 +139,12 @@ class DualThresholding(Component):
 
     def run(self):
         img = Image.get_frame(
-            img=self.image_input,
+            img=self.images,
             redis_db=self.redis_db
         )
 
         img_second = Image.get_frame(
-            img=self.image_second_input,
+            img=self.second_images,
             redis_db=self.redis_db
         )
 
@@ -133,7 +163,7 @@ class DualThresholding(Component):
             redis_db=self.redis_db
         )
 
-        package_model = build_dual_response(context=self)
+        package_model = build_response(context=self)
         return package_model
 
 
